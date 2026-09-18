@@ -319,6 +319,11 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
             <ShieldCheck className="size-3.5" />
             Sichere Zahlung, keine Kartendaten bei uns gespeichert.
           </p>
+
+          <p className="rounded-lg bg-muted/60 p-3 text-center text-xs text-muted-foreground">
+            Alle Tickets sind vom Umtausch ausgeschlossen: Ein Storno oder eine
+            Rückerstattung ist nach dem Kauf nicht möglich.
+          </p>
         </form>
       )}
 

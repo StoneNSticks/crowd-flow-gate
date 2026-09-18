@@ -93,6 +93,11 @@ function SuccessPage() {
             </div>
           ))}
         </div>
+
+        <p className="mt-8 rounded-lg bg-muted/60 p-4 text-center text-xs text-muted-foreground">
+          Hinweis: Tickets sind vom Umtausch ausgeschlossen. Ein Storno oder eine
+          Rückerstattung ist nach dem Kauf nicht möglich.
+        </p>
       </div>
     </PublicLayout>
   );

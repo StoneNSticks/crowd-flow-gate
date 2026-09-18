@@ -91,22 +91,6 @@ async function issueTickets(sessionId: string, paymentIntentId?: string | null) 
     .eq("id", order.id);
 }
 
-/**
- * Erstattung oder Rückbuchung: alle Tickets der Bestellung werden sofort ungültig,
- * damit der Platz wieder frei wird und der Scan rot anzeigt.
- */
-async function voidOrderByPaymentIntent(paymentIntentId: string) {
-  const db = getSupabase();
-  const { data: order } = await db
-    .from("orders")
-    .select("id")
-    .eq("provider_payment_intent", paymentIntentId)
-    .maybeSingle<{ id: string }>();
-  if (!order) return;
-
-  await db.from("tickets").update({ status: "cancelled" }).eq("order_id", order.id);
-  await db.from("orders").update({ status: "refunded" }).eq("id", order.id);
-}
 
 async function markFailed(sessionId: string) {
   await getSupabase()
@@ -136,20 +120,6 @@ async function handleWebhook(req: Request, env: StripeEnv) {
     case "checkout.session.expired":
       await markFailed(event.data.object.id);
       break;
-    case "charge.refunded":
-    case "charge.dispute.created": {
-      const obj = event.data.object as { payment_intent?: string | null };
-      if (typeof obj.payment_intent === "string") await voidOrderByPaymentIntent(obj.payment_intent);
-      break;
-    }
-    case "refund.created":
-    case "refund.updated": {
-      const obj = event.data.object as { payment_intent?: string | null; status?: string };
-      if (typeof obj.payment_intent === "string" && obj.status !== "failed" && obj.status !== "canceled") {
-        await voidOrderByPaymentIntent(obj.payment_intent);
-      }
-      break;
-    }
     default:
       console.log("Unhandled event:", event.type);
   }
