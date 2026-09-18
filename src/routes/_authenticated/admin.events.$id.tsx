@@ -172,6 +172,7 @@ function TicketList({
   onChanged: () => Promise<unknown>;
 }) {
   const cancelTicket = useServerFn(adminCancelTicket);
+  const refundOrder = useServerFn(adminRefundOrder);
   const [query, setQuery] = useState("");
 
   const mutation = useMutation({
@@ -179,6 +180,25 @@ function TicketList({
     onSuccess: async () => {
       await onChanged();
       toast.success("Ticket storniert.");
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const refundMutation = useMutation({
+    mutationFn: async (ticketId: string) => {
+      const res = await refundOrder({
+        data: { ticketId, environment: getStripeEnvironment() },
+      });
+      if ("error" in res) throw new Error(res.error);
+      return res;
+    },
+    onSuccess: async (res) => {
+      await onChanged();
+      toast.success(
+        res.refunded
+          ? "Betrag erstattet, Tickets der Bestellung sind ungültig."
+          : "Tickets der Bestellung sind ungültig (keine Zahlung gefunden).",
+      );
     },
     onError: (e) => toast.error((e as Error).message),
   });
