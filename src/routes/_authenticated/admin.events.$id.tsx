@@ -172,7 +172,6 @@ function TicketList({
   onChanged: () => Promise<unknown>;
 }) {
   const cancelTicket = useServerFn(adminCancelTicket);
-  const refundOrder = useServerFn(adminRefundOrder);
   const [query, setQuery] = useState("");
 
   const mutation = useMutation({
