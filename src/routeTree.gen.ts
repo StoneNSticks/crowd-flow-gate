@@ -16,6 +16,7 @@ import { Route as DatenschutzRouteImport } from './routes/datenschutz'
 import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as EventSlugRouteImport } from './routes/event.$slug'
+import { Route as KaufErfolgRouteImport } from './routes/kauf.erfolg'
 import { Route as TicketIdRouteImport } from './routes/ticket.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminScanRouteImport } from './routes/_authenticated/admin.scan'
@@ -56,6 +57,11 @@ const EventSlugRoute = EventSlugRouteImport.update({
   path: '/event/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KaufErfolgRoute = KaufErfolgRouteImport.update({
+  id: '/kauf/erfolg',
+  path: '/kauf/erfolg',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TicketIdRoute = TicketIdRouteImport.update({
   id: '/ticket/$id',
   path: '/ticket/$id',
@@ -91,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/impressum': typeof ImpressumRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/event/$slug': typeof EventSlugRoute
+  '/kauf/erfolg': typeof KaufErfolgRoute
   '/ticket/$id': typeof TicketIdRoute
   '/admin/scan': typeof AuthenticatedAdminScanRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
   '/event/$slug': typeof EventSlugRoute
+  '/kauf/erfolg': typeof KaufErfolgRoute
   '/ticket/$id': typeof TicketIdRoute
   '/admin/scan': typeof AuthenticatedAdminScanRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/impressum': typeof ImpressumRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/event/$slug': typeof EventSlugRoute
+  '/kauf/erfolg': typeof KaufErfolgRoute
   '/ticket/$id': typeof TicketIdRoute
   '/_authenticated/admin/scan': typeof AuthenticatedAdminScanRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/impressum'
     | '/admin'
     | '/event/$slug'
+    | '/kauf/erfolg'
     | '/ticket/$id'
     | '/admin/scan'
     | '/admin/'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/datenschutz'
     | '/impressum'
     | '/event/$slug'
+    | '/kauf/erfolg'
     | '/ticket/$id'
     | '/admin/scan'
     | '/admin'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/impressum'
     | '/_authenticated/admin'
     | '/event/$slug'
+    | '/kauf/erfolg'
     | '/ticket/$id'
     | '/_authenticated/admin/scan'
     | '/_authenticated/admin/'
@@ -173,6 +185,7 @@ export interface RootRouteChildren {
   DatenschutzRoute: typeof DatenschutzRoute
   ImpressumRoute: typeof ImpressumRoute
   EventSlugRoute: typeof EventSlugRoute
+  KaufErfolgRoute: typeof KaufErfolgRoute
   TicketIdRoute: typeof TicketIdRoute
 }
 
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       path: '/event/$slug'
       fullPath: '/event/$slug'
       preLoaderRoute: typeof EventSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kauf/erfolg': {
+      id: '/kauf/erfolg'
+      path: '/kauf/erfolg'
+      fullPath: '/kauf/erfolg'
+      preLoaderRoute: typeof KaufErfolgRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ticket/$id': {
@@ -300,6 +320,7 @@ const rootRouteChildren: RootRouteChildren = {
   DatenschutzRoute: DatenschutzRoute,
   ImpressumRoute: ImpressumRoute,
   EventSlugRoute: EventSlugRoute,
+  KaufErfolgRoute: KaufErfolgRoute,
   TicketIdRoute: TicketIdRoute,
 }
 export const routeTree = rootRouteImport
