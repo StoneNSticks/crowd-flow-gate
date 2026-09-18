@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DatenschutzRouteImport } from './routes/datenschutz'
 import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as EventSlugRouteImport } from './routes/event.$slug'
 import { Route as TicketIdRouteImport } from './routes/ticket.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminScanRouteImport } from './routes/_authenticated/admin.scan'
@@ -50,6 +51,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const EventSlugRoute = EventSlugRouteImport.update({
+  id: '/event/$slug',
+  path: '/event/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TicketIdRoute = TicketIdRouteImport.update({
   id: '/ticket/$id',
   path: '/ticket/$id',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/event/$slug': typeof EventSlugRoute
   '/ticket/$id': typeof TicketIdRoute
   '/admin/scan': typeof AuthenticatedAdminScanRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
+  '/event/$slug': typeof EventSlugRoute
   '/ticket/$id': typeof TicketIdRoute
   '/admin/scan': typeof AuthenticatedAdminScanRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/event/$slug': typeof EventSlugRoute
   '/ticket/$id': typeof TicketIdRoute
   '/_authenticated/admin/scan': typeof AuthenticatedAdminScanRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/datenschutz'
     | '/impressum'
     | '/admin'
+    | '/event/$slug'
     | '/ticket/$id'
     | '/admin/scan'
     | '/admin/'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/datenschutz'
     | '/impressum'
+    | '/event/$slug'
     | '/ticket/$id'
     | '/admin/scan'
     | '/admin'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
     | '/datenschutz'
     | '/impressum'
     | '/_authenticated/admin'
+    | '/event/$slug'
     | '/ticket/$id'
     | '/_authenticated/admin/scan'
     | '/_authenticated/admin/'
@@ -160,6 +172,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DatenschutzRoute: typeof DatenschutzRoute
   ImpressumRoute: typeof ImpressumRoute
+  EventSlugRoute: typeof EventSlugRoute
   TicketIdRoute: typeof TicketIdRoute
 }
 
@@ -206,6 +219,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/event/$slug': {
+      id: '/event/$slug'
+      path: '/event/$slug'
+      fullPath: '/event/$slug'
+      preLoaderRoute: typeof EventSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/ticket/$id': {
       id: '/ticket/$id'
@@ -279,6 +299,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DatenschutzRoute: DatenschutzRoute,
   ImpressumRoute: ImpressumRoute,
+  EventSlugRoute: EventSlugRoute,
   TicketIdRoute: TicketIdRoute,
 }
 export const routeTree = rootRouteImport
