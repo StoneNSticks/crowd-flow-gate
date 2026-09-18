@@ -125,8 +125,8 @@ function EventPage() {
               label="Einlass / Ende"
               value={
                 event.ends_at
-                  ? `bis ${formatTime(event.ends_at)} Uhr`
-                  : `Beginn ${formatTime(event.starts_at)} Uhr`
+                  ? `bis ${formatTime(event.ends_at)}`
+                  : `Beginn ${formatTime(event.starts_at)}`
               }
             />
             {(event.venue_name || event.address) && (
