@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { CalendarDays, Clock, Loader2, MapPin, Minus, Plus, ShieldCheck } from "lucide-react";
 import { getPublicEvent, type PublicEventDetail } from "@/lib/public-events.functions";
 import { startCheckout } from "@/lib/checkout.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
+import { CheckoutDialog } from "@/components/checkout/CheckoutDialog";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
