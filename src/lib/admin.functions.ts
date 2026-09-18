@@ -287,6 +287,60 @@ export const adminCancelTicket = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/**
+ * Erstattet die Zahlung einer Bestellung und macht alle zugehörigen Tickets
+ * sofort ungültig. Ohne Zahlungsreferenz werden nur die Tickets storniert.
+ */
+export const adminRefundOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { ticketId: string; environment: "sandbox" | "live" }) =>
+    z
+      .object({
+        ticketId: z.string().uuid(),
+        environment: z.enum(["sandbox", "live"]),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true; refunded: boolean } | { error: string }> => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: ticket } = await supabaseAdmin
+      .from("tickets")
+      .select("id, order_id")
+      .eq("id", data.ticketId)
+      .maybeSingle();
+    if (!ticket) throw new Error("Ticket nicht gefunden.");
+
+    if (!ticket.order_id) {
+      await supabaseAdmin.from("tickets").update({ status: "cancelled" }).eq("id", ticket.id);
+      return { ok: true, refunded: false };
+    }
+
+    const { data: order } = await supabaseAdmin
+      .from("orders")
+      .select("id, provider_payment_intent, status")
+      .eq("id", ticket.order_id)
+      .maybeSingle();
+
+    let refunded = false;
+    if (order?.provider_payment_intent && order.status !== "refunded") {
+      const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
+      try {
+        const stripe = createStripeClient(data.environment);
+        await stripe.refunds.create({ payment_intent: order.provider_payment_intent });
+        refunded = true;
+      } catch (error) {
+        return { error: getStripeErrorMessage(error) };
+      }
+    }
+
+    await supabaseAdmin.from("tickets").update({ status: "cancelled" }).eq("order_id", ticket.order_id);
+    await supabaseAdmin.from("orders").update({ status: "refunded" }).eq("id", ticket.order_id);
+
+    return { ok: true, refunded };
+  });
+
 /* --------------------------------- scanning -------------------------------- */
 
 export type ScanResult =
