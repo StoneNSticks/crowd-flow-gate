@@ -17,6 +17,7 @@ import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as EventSlugRouteImport } from './routes/event.$slug'
 import { Route as KaufErfolgRouteImport } from './routes/kauf.erfolg'
+import { Route as KaufFehlgeschlagenRouteImport } from './routes/kauf.fehlgeschlagen'
 import { Route as TicketIdRouteImport } from './routes/ticket.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminScanRouteImport } from './routes/_authenticated/admin.scan'
@@ -62,6 +63,11 @@ const KaufErfolgRoute = KaufErfolgRouteImport.update({
   path: '/kauf/erfolg',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KaufFehlgeschlagenRoute = KaufFehlgeschlagenRouteImport.update({
+  id: '/kauf/fehlgeschlagen',
+  path: '/kauf/fehlgeschlagen',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TicketIdRoute = TicketIdRouteImport.update({
   id: '/ticket/$id',
   path: '/ticket/$id',
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/event/$slug': typeof EventSlugRoute
   '/kauf/erfolg': typeof KaufErfolgRoute
+  '/kauf/fehlgeschlagen': typeof KaufFehlgeschlagenRoute
   '/ticket/$id': typeof TicketIdRoute
   '/admin/scan': typeof AuthenticatedAdminScanRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/impressum': typeof ImpressumRoute
   '/event/$slug': typeof EventSlugRoute
   '/kauf/erfolg': typeof KaufErfolgRoute
+  '/kauf/fehlgeschlagen': typeof KaufFehlgeschlagenRoute
   '/ticket/$id': typeof TicketIdRoute
   '/admin/scan': typeof AuthenticatedAdminScanRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/event/$slug': typeof EventSlugRoute
   '/kauf/erfolg': typeof KaufErfolgRoute
+  '/kauf/fehlgeschlagen': typeof KaufFehlgeschlagenRoute
   '/ticket/$id': typeof TicketIdRoute
   '/_authenticated/admin/scan': typeof AuthenticatedAdminScanRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -143,6 +152,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/event/$slug'
     | '/kauf/erfolg'
+    | '/kauf/fehlgeschlagen'
     | '/ticket/$id'
     | '/admin/scan'
     | '/admin/'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/impressum'
     | '/event/$slug'
     | '/kauf/erfolg'
+    | '/kauf/fehlgeschlagen'
     | '/ticket/$id'
     | '/admin/scan'
     | '/admin'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/event/$slug'
     | '/kauf/erfolg'
+    | '/kauf/fehlgeschlagen'
     | '/ticket/$id'
     | '/_authenticated/admin/scan'
     | '/_authenticated/admin/'
@@ -186,6 +198,7 @@ export interface RootRouteChildren {
   ImpressumRoute: typeof ImpressumRoute
   EventSlugRoute: typeof EventSlugRoute
   KaufErfolgRoute: typeof KaufErfolgRoute
+  KaufFehlgeschlagenRoute: typeof KaufFehlgeschlagenRoute
   TicketIdRoute: typeof TicketIdRoute
 }
 
@@ -245,6 +258,13 @@ declare module '@tanstack/react-router' {
       path: '/kauf/erfolg'
       fullPath: '/kauf/erfolg'
       preLoaderRoute: typeof KaufErfolgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kauf/fehlgeschlagen': {
+      id: '/kauf/fehlgeschlagen'
+      path: '/kauf/fehlgeschlagen'
+      fullPath: '/kauf/fehlgeschlagen'
+      preLoaderRoute: typeof KaufFehlgeschlagenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ticket/$id': {
@@ -321,6 +341,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImpressumRoute: ImpressumRoute,
   EventSlugRoute: EventSlugRoute,
   KaufErfolgRoute: KaufErfolgRoute,
+  KaufFehlgeschlagenRoute: KaufFehlgeschlagenRoute,
   TicketIdRoute: TicketIdRoute,
 }
 export const routeTree = rootRouteImport
