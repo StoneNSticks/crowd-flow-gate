@@ -120,20 +120,6 @@ async function handleWebhook(req: Request, env: StripeEnv) {
     case "checkout.session.expired":
       await markFailed(event.data.object.id);
       break;
-    case "charge.refunded":
-    case "charge.dispute.created": {
-      const obj = event.data.object as { payment_intent?: string | null };
-      if (typeof obj.payment_intent === "string") await voidOrderByPaymentIntent(obj.payment_intent);
-      break;
-    }
-    case "refund.created":
-    case "refund.updated": {
-      const obj = event.data.object as { payment_intent?: string | null; status?: string };
-      if (typeof obj.payment_intent === "string" && obj.status !== "failed" && obj.status !== "canceled") {
-        await voidOrderByPaymentIntent(obj.payment_intent);
-      }
-      break;
-    }
     default:
       console.log("Unhandled event:", event.type);
   }
