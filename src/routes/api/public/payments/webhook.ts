@@ -28,7 +28,7 @@ function generateTicketCode(): string {
   return out;
 }
 
-async function issueTickets(sessionId: string) {
+async function issueTickets(sessionId: string, paymentIntentId?: string | null) {
   const db = getSupabase();
 
   const { data: order } = await db
@@ -82,8 +82,30 @@ async function issueTickets(sessionId: string) {
 
   await db
     .from("orders")
-    .update({ status: "paid", paid_at: new Date().toISOString(), tickets_issued: true })
+    .update({
+      status: "paid",
+      paid_at: new Date().toISOString(),
+      tickets_issued: true,
+      ...(paymentIntentId ? { provider_payment_intent: paymentIntentId } : {}),
+    })
     .eq("id", order.id);
+}
+
+/**
+ * Erstattung oder Rückbuchung: alle Tickets der Bestellung werden sofort ungültig,
+ * damit der Platz wieder frei wird und der Scan rot anzeigt.
+ */
+async function voidOrderByPaymentIntent(paymentIntentId: string) {
+  const db = getSupabase();
+  const { data: order } = await db
+    .from("orders")
+    .select("id")
+    .eq("provider_payment_intent", paymentIntentId)
+    .maybeSingle<{ id: string }>();
+  if (!order) return;
+
+  await db.from("tickets").update({ status: "cancelled" }).eq("order_id", order.id);
+  await db.from("orders").update({ status: "refunded" }).eq("id", order.id);
 }
 
 async function markFailed(sessionId: string) {
