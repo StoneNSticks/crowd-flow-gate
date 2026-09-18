@@ -122,16 +122,34 @@ async function handleWebhook(req: Request, env: StripeEnv) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object;
-      if (session.payment_status !== "unpaid") await issueTickets(session.id);
+      const pi = typeof session.payment_intent === "string" ? session.payment_intent : null;
+      if (session.payment_status !== "unpaid") await issueTickets(session.id, pi);
       break;
     }
-    case "checkout.session.async_payment_succeeded":
-      await issueTickets(event.data.object.id);
+    case "checkout.session.async_payment_succeeded": {
+      const session = event.data.object;
+      const pi = typeof session.payment_intent === "string" ? session.payment_intent : null;
+      await issueTickets(session.id, pi);
       break;
+    }
     case "checkout.session.async_payment_failed":
     case "checkout.session.expired":
       await markFailed(event.data.object.id);
       break;
+    case "charge.refunded":
+    case "charge.dispute.created": {
+      const obj = event.data.object as { payment_intent?: string | null };
+      if (typeof obj.payment_intent === "string") await voidOrderByPaymentIntent(obj.payment_intent);
+      break;
+    }
+    case "refund.created":
+    case "refund.updated": {
+      const obj = event.data.object as { payment_intent?: string | null; status?: string };
+      if (typeof obj.payment_intent === "string" && obj.status !== "failed" && obj.status !== "canceled") {
+        await voidOrderByPaymentIntent(obj.payment_intent);
+      }
+      break;
+    }
     default:
       console.log("Unhandled event:", event.type);
   }
