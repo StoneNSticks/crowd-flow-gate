@@ -161,6 +161,7 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   const total = useMemo(
     () =>
@@ -194,14 +195,18 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
           slug: event.slug,
           buyerName: name.trim(),
           buyerEmail: email.trim(),
+          environment: getStripeEnvironment(),
+          returnUrl: `${window.location.origin}/kauf/erfolg?session={CHECKOUT_SESSION_ID}`,
           items: Object.entries(quantities)
             .filter(([, qty]) => qty > 0)
             .map(([ticketTypeId, quantity]) => ({ ticketTypeId, quantity })),
         },
       });
-      window.location.href = res.url;
+      if ("error" in res) throw new Error(res.error);
+      setClientSecret(res.clientSecret);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Kauf konnte nicht gestartet werden.");
+    } finally {
       setBusy(false);
     }
   }
