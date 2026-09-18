@@ -321,6 +321,8 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
           </p>
         </form>
       )}
+
+      <CheckoutDialog clientSecret={clientSecret} onClose={() => setClientSecret(null)} />
     </div>
   );
 }
