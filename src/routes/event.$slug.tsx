@@ -95,17 +95,17 @@ function EventPage() {
 
   return (
     <PublicLayout>
-      <div className="relative aspect-[16/9] max-h-[420px] w-full overflow-hidden bg-muted sm:aspect-[21/9]">
-        {event.cover_image_url ? (
+      {event.cover_image_url ? (
+        <div className="relative aspect-[16/9] max-h-[420px] w-full overflow-hidden bg-muted sm:aspect-[21/9]">
           <img
             src={event.cover_image_url}
             alt={event.title}
             className="h-full w-full object-cover"
           />
-        ) : (
-          <div className="hero-gradient h-full w-full" />
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="hero-gradient h-32 w-full sm:h-40" />
+      )}
 
       <div className="mx-auto grid max-w-6xl gap-10 px-4 pb-28 pt-8 sm:px-6 lg:grid-cols-[1.4fr_1fr] lg:pb-16">
         <div>
