@@ -57,7 +57,7 @@ async function issueTickets(sessionId: string) {
     .select("ticket_type_id, quantity")
     .eq("order_id", order.id);
 
-  const rows: Record<string, unknown>[] = [];
+  const rows: Database["public"]["Tables"]["tickets"]["Insert"][] = [];
   for (const item of (items ?? []) as { ticket_type_id: string; quantity: number }[]) {
     for (let i = 0; i < item.quantity; i += 1) {
       rows.push({
