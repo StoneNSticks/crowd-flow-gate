@@ -134,6 +134,55 @@ export const adminSaveEvent = createServerFn({ method: "POST" })
     return { id: created.id };
   });
 
+const createWithTypesInput = eventInput.omit({ id: true }).extend({
+  ticketTypes: z
+    .array(
+      z.object({
+        name: z.string().trim().min(1).max(80),
+        description: z.string().max(500).nullable(),
+        price_cents: z.number().int().min(0).max(10_000_000),
+        quantity: z.number().int().min(1).max(100_000),
+      }),
+    )
+    .min(1)
+    .max(20),
+});
+
+/** Legt Event und alle Ticketarten in einem Schritt an (Rollback bei Fehler). */
+export const adminCreateEventWithTypes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => createWithTypesInput.parse(data))
+  .handler(async ({ data, context }): Promise<{ id: string }> => {
+    await assertAdmin(context);
+    const supabase = (context as any).supabase;
+    const { ticketTypes, ...fields } = data;
+
+    const { data: created, error } = await supabase
+      .from("events")
+      .insert({ ...fields, created_by: (context as any).userId })
+      .select("id")
+      .single();
+    if (error) throw new Error(mapDbError(error.message));
+
+    const { error: typeError } = await supabase.from("ticket_types").insert(
+      ticketTypes.map((t, index) => ({
+        event_id: created.id,
+        name: t.name,
+        description: t.description,
+        price_cents: t.price_cents,
+        quantity: t.quantity,
+        sort_order: index,
+        is_active: true,
+      })),
+    );
+    if (typeError) {
+      await supabase.from("events").delete().eq("id", created.id);
+      throw new Error(typeError.message);
+    }
+
+    return { id: created.id };
+  });
+
 export const adminDeleteEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { id: string }) => z.object({ id: z.string().uuid() }).parse(data))
