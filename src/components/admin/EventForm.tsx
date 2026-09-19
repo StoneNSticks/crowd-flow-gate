@@ -101,7 +101,8 @@ export function EventForm({
       const target = index + delta;
       if (index < 0 || target < 0 || target >= r.length) return r;
       const copy = [...r];
-      const [item] = copy.splice(index, 1);
+      const item = copy.splice(index, 1)[0];
+      if (!item) return r;
       copy.splice(target, 0, item);
       return copy;
     });
