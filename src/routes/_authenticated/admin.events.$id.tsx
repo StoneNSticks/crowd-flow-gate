@@ -3,7 +3,15 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowLeft, ExternalLink, Loader2, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowUp,
+  ExternalLink,
+  Loader2,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import {
   adminCancelTicket,
   adminDeleteEvent,
@@ -261,8 +269,8 @@ function TicketList({
         </div>
       )}
       <p className="mt-3 text-xs text-muted-foreground">
-        Rückzahlungen werden beim Zahlungsdienstleister ausgelöst; das Ticket wird hier sofort
-        ungültig. Event-ID: {eventId.slice(0, 8)}
+        Tickets sind nicht erstattbar. Ein storniertes Ticket wird beim Scannen sofort abgewiesen.
+        Event-ID: {eventId.slice(0, 8)}
       </p>
     </div>
   );
@@ -279,14 +287,23 @@ function TicketTypes({
 }) {
   const saveType = useServerFn(adminSaveTicketType);
   const deleteType = useServerFn(adminDeleteTicketType);
-  const [draft, setDraft] = useState({ name: "", price: "", quantity: "" });
+  const [draft, setDraft] = useState({ name: "", price: "", quantity: "", description: "" });
 
   const save = useMutation({
     mutationFn: (payload: any) => saveType({ data: payload }),
     onSuccess: async () => {
       await onChanged();
-      setDraft({ name: "", price: "", quantity: "" });
       toast.success("Kategorie gespeichert.");
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const create = useMutation({
+    mutationFn: (payload: any) => saveType({ data: payload }),
+    onSuccess: async () => {
+      await onChanged();
+      setDraft({ name: "", price: "", quantity: "", description: "" });
+      toast.success("Kategorie hinzugefügt.");
     },
     onError: (e) => toast.error((e as Error).message),
   });
@@ -306,54 +323,43 @@ function TicketTypes({
 
   return (
     <div className="space-y-4">
-      {types.map((t) => (
-        <div
+      {types.map((t, index) => (
+        <TicketTypeRow
           key={t.id}
-          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4"
-        >
-          <div>
-            <p className="font-600">
-              {t.name}{" "}
-              {!t.is_active && (
-                <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-[0.7rem] text-muted-foreground">
-                  inaktiv
-                </span>
-              )}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {formatMoney(t.price_cents)} · Kontingent {t.quantity}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                save.mutate({
-                  id: t.id,
-                  event_id: eventId,
-                  name: t.name,
-                  description: t.description ?? null,
-                  price_cents: t.price_cents,
-                  quantity: t.quantity,
-                  sort_order: t.sort_order,
-                  is_active: !t.is_active,
-                })
-              }
-            >
-              {t.is_active ? "Deaktivieren" : "Aktivieren"}
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                if (confirm(`Kategorie „${t.name}“ entfernen?`)) remove.mutate(t.id);
-              }}
-            >
-              <Trash2 className="size-4" />
-            </Button>
-          </div>
-        </div>
+          type={t}
+          eventId={eventId}
+          canMoveUp={index > 0}
+          canMoveDown={index < types.length - 1}
+          busy={save.isPending}
+          onSave={(payload) => save.mutate(payload)}
+          onMove={(delta) => {
+            const other = types[index + delta];
+            if (!other) return;
+            save.mutate({
+              id: t.id,
+              event_id: eventId,
+              name: t.name,
+              description: t.description ?? null,
+              price_cents: t.price_cents,
+              quantity: t.quantity,
+              sort_order: other.sort_order,
+              is_active: t.is_active,
+            });
+            save.mutate({
+              id: other.id,
+              event_id: eventId,
+              name: other.name,
+              description: other.description ?? null,
+              price_cents: other.price_cents,
+              quantity: other.quantity,
+              sort_order: t.sort_order,
+              is_active: other.is_active,
+            });
+          }}
+          onRemove={() => {
+            if (confirm(`Kategorie „${t.name}“ entfernen?`)) remove.mutate(t.id);
+          }}
+        />
       ))}
 
       <form
@@ -362,14 +368,18 @@ function TicketTypes({
           e.preventDefault();
           const price = Number(draft.price.replace(",", "."));
           const quantity = Number(draft.quantity);
-          if (!draft.name.trim() || Number.isNaN(price) || Number.isNaN(quantity)) {
+          if (!draft.name.trim() || Number.isNaN(price) || Number.isNaN(quantity) || quantity < 1) {
             toast.error("Bitte Name, Preis und Kontingent angeben.");
             return;
           }
-          save.mutate({
+          if (price > 0 && price < 0.5) {
+            toast.error("Bezahlte Tickets müssen mindestens 0,50 € kosten.");
+            return;
+          }
+          create.mutate({
             event_id: eventId,
             name: draft.name.trim(),
-            description: null,
+            description: draft.description.trim() ? draft.description.trim() : null,
             price_cents: Math.round(price * 100),
             quantity,
             sort_order: types.length,
@@ -377,7 +387,7 @@ function TicketTypes({
           });
         }}
       >
-        <h3 className="font-600">Kategorie hinzufügen</h3>
+        <h3 className="font-600">Ticketart hinzufügen</h3>
         <div className="mt-4 grid gap-3 sm:grid-cols-[2fr_1fr_1fr_auto] sm:items-end">
           <div className="space-y-1.5">
             <Label>Name</Label>
@@ -405,12 +415,150 @@ function TicketTypes({
               inputMode="numeric"
             />
           </div>
-          <Button type="submit" disabled={save.isPending}>
-            {save.isPending ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+          <Button type="submit" disabled={create.isPending}>
+            {create.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Plus className="size-4" />
+            )}
             Hinzufügen
           </Button>
         </div>
+        <Input
+          className="mt-3"
+          value={draft.description}
+          onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+          placeholder="Kurzbeschreibung (optional)"
+        />
       </form>
+    </div>
+  );
+}
+
+function TicketTypeRow({
+  type,
+  eventId,
+  canMoveUp,
+  canMoveDown,
+  busy,
+  onSave,
+  onMove,
+  onRemove,
+}: {
+  type: any;
+  eventId: string;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  busy: boolean;
+  onSave: (payload: any) => void;
+  onMove: (delta: number) => void;
+  onRemove: () => void;
+}) {
+  const [name, setName] = useState<string>(type.name);
+  const [price, setPrice] = useState<string>((type.price_cents / 100).toFixed(2).replace(".", ","));
+  const [quantity, setQuantity] = useState<string>(String(type.quantity));
+  const [description, setDescription] = useState<string>(type.description ?? "");
+
+  const dirty =
+    name !== type.name ||
+    Math.round(Number(price.replace(",", ".")) * 100) !== type.price_cents ||
+    Number(quantity) !== type.quantity ||
+    (description || "") !== (type.description ?? "");
+
+  function submit(isActive: boolean) {
+    const parsed = Number(price.replace(",", "."));
+    const qty = Number(quantity);
+    if (!name.trim() || Number.isNaN(parsed) || !Number.isInteger(qty) || qty < 1) {
+      toast.error("Bitte Name, Preis und Kontingent prüfen.");
+      return;
+    }
+    if (parsed > 0 && parsed < 0.5) {
+      toast.error("Bezahlte Tickets müssen mindestens 0,50 € kosten.");
+      return;
+    }
+    if (qty < type.sold) {
+      toast.error(`Es sind bereits ${type.sold} Tickets verkauft — Kontingent nicht kleiner setzen.`);
+      return;
+    }
+    onSave({
+      id: type.id,
+      event_id: eventId,
+      name: name.trim(),
+      description: description.trim() ? description.trim() : null,
+      price_cents: Math.round(parsed * 100),
+      quantity: qty,
+      sort_order: type.sort_order,
+      is_active: isActive,
+    });
+  }
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-muted-foreground">
+          Verkauft <span className="font-600 text-foreground">{type.sold ?? 0}</span> von{" "}
+          {type.quantity} · verbleibend {type.remaining ?? type.quantity} · Umsatz{" "}
+          {formatMoney(type.revenueCents ?? 0)}
+          {!type.is_active && (
+            <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[0.7rem]">inaktiv</span>
+          )}
+        </p>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Nach oben"
+            disabled={!canMoveUp || busy}
+            onClick={() => onMove(-1)}
+          >
+            <ArrowUp className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Nach unten"
+            disabled={!canMoveDown || busy}
+            onClick={() => onMove(1)}
+          >
+            <ArrowDown className="size-4" />
+          </Button>
+          <Button variant="outline" size="sm" disabled={busy} onClick={() => submit(!type.is_active)}>
+            {type.is_active ? "Deaktivieren" : "Aktivieren"}
+          </Button>
+          <Button variant="ghost" size="icon" aria-label="Entfernen" onClick={onRemove}>
+            <Trash2 className="size-4" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-[2fr_1fr_1fr_auto] sm:items-end">
+        <div className="space-y-1.5">
+          <Label>Name</Label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div className="space-y-1.5">
+          <Label>Preis (€)</Label>
+          <Input value={price} inputMode="decimal" onChange={(e) => setPrice(e.target.value)} />
+        </div>
+        <div className="space-y-1.5">
+          <Label>Kontingent</Label>
+          <Input
+            value={quantity}
+            inputMode="numeric"
+            onChange={(e) => setQuantity(e.target.value)}
+          />
+        </div>
+        <Button disabled={!dirty || busy} onClick={() => submit(type.is_active)}>
+          {busy && <Loader2 className="size-4 animate-spin" />}
+          Speichern
+        </Button>
+      </div>
+      <Input
+        className="mt-3"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        placeholder="Kurzbeschreibung (optional)"
+      />
     </div>
   );
 }
