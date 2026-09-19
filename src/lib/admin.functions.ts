@@ -306,9 +306,19 @@ export const adminGetEvent = createServerFn({ method: "GET" })
     );
     const capacity = event.max_tickets ? Math.min(event.max_tickets, quota) : quota;
 
+    const enrichedTypes = (types ?? []).map((t: any) => {
+      const own = active.filter((r) => r.ticket_type_id === t.id);
+      return {
+        ...t,
+        sold: own.length,
+        remaining: Math.max(0, t.quantity - own.length),
+        revenueCents: own.length * t.price_cents,
+      };
+    });
+
     return {
       event,
-      ticketTypes: types ?? [],
+      ticketTypes: enrichedTypes,
       tickets: rows,
       stats: {
         sold: active.length,
