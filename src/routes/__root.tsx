@@ -82,7 +82,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Goethe Connect — Tickets" },
       {
         name: "description",
-        content: "Tickets für Veranstaltungen der Goethe Connect.",
+        content: "Tickets für Veranstaltungen von Goethe Connect.",
       },
       { property: "og:site_name", content: "Goethe Connect" },
       { property: "og:type", content: "website" },
