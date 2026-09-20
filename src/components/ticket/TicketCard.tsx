@@ -47,6 +47,20 @@ export function TicketCard({ ticket }: { ticket: PublicTicket }) {
         <p className="mt-4 break-all text-center font-mono text-xs text-muted-foreground">
           {ticket.code}
         </p>
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-5 w-full"
+          disabled={creating}
+          onClick={() => void download()}
+        >
+          {creating ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Download className="size-4" />
+          )}
+          Ticket als PDF herunterladen
+        </Button>
       </div>
 
       <dl className="space-y-3 border-t border-dashed border-border px-5 py-5 text-sm">
