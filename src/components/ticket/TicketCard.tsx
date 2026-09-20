@@ -1,9 +1,28 @@
-import { CalendarDays, MapPin } from "lucide-react";
+import { useState } from "react";
+import { CalendarDays, Download, Loader2, MapPin } from "lucide-react";
+import { toast } from "sonner";
 import { QrCode } from "@/components/QrCode";
+import { Button } from "@/components/ui/button";
 import type { PublicTicket } from "@/lib/tickets.functions";
 import { formatDateTime, formatPrice } from "@/lib/format";
+import { downloadTicketPdf } from "@/lib/ticket-pdf";
 
 export function TicketCard({ ticket }: { ticket: PublicTicket }) {
+  const [creating, setCreating] = useState(false);
+
+  async function download() {
+    setCreating(true);
+    try {
+      await downloadTicketPdf(ticket);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "PDF konnte nicht erstellt werden.",
+      );
+    } finally {
+      setCreating(false);
+    }
+  }
+
   const state =
     ticket.status === "valid"
       ? { label: "Gültig", className: "bg-success/15 text-success" }
