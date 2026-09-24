@@ -50,6 +50,7 @@ export interface AdminEventRow {
   ticketsRedeemed: number;
   capacity: number;
   revenueCents: number;
+  participation_mode: "paid" | "free_ticket" | "open_free";
 }
 
 export const adminListEvents = createServerFn({ method: "GET" })
@@ -60,7 +61,7 @@ export const adminListEvents = createServerFn({ method: "GET" })
 
     const { data: events, error } = await supabase
       .from("events")
-      .select("id, slug, title, starts_at, venue_name, is_active, max_tickets")
+      .select("id, slug, title, starts_at, venue_name, is_active, max_tickets, participation_mode")
       .order("starts_at", { ascending: false });
     if (error) throw new Error(error.message);
 
@@ -106,6 +107,7 @@ const eventInput = z.object({
   sales_end_at: z.string().nullable(),
   max_tickets: z.number().int().min(0).nullable(),
   is_active: z.boolean(),
+  participation_mode: z.enum(["paid", "free_ticket", "open_free"]),
 });
 
 export const adminSaveEvent = createServerFn({ method: "POST" })
@@ -144,7 +146,7 @@ const createWithTypesInput = eventInput.omit({ id: true }).extend({
         quantity: z.number().int().min(1).max(100_000),
       }),
     )
-    .min(1)
+    .min(0)
     .max(20),
 });
 
@@ -156,6 +158,15 @@ export const adminCreateEventWithTypes = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const supabase = (context as any).supabase;
     const { ticketTypes, ...fields } = data;
+    if (fields.participation_mode !== "open_free" && ticketTypes.length === 0) {
+      throw new Error("Für dieses Event wird mindestens eine Ticketart benötigt.");
+    }
+    if (fields.participation_mode === "paid" && !ticketTypes.some((type) => type.price_cents > 0)) {
+      throw new Error("Für ein Event mit Verkauf wird mindestens eine bezahlte Ticketart benötigt.");
+    }
+    if (fields.participation_mode === "free_ticket" && ticketTypes.some((type) => type.price_cents !== 0)) {
+      throw new Error("Kostenlose QR-Tickets dürfen keinen Preis haben.");
+    }
 
     const { data: created, error } = await supabase
       .from("events")
@@ -164,8 +175,8 @@ export const adminCreateEventWithTypes = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(mapDbError(error.message));
 
-    const { error: typeError } = await supabase.from("ticket_types").insert(
-      ticketTypes.map((t, index) => ({
+    const { error: typeError } = ticketTypes.length
+      ? await supabase.from("ticket_types").insert(ticketTypes.map((t, index) => ({
         event_id: created.id,
         name: t.name,
         description: t.description,
@@ -173,8 +184,8 @@ export const adminCreateEventWithTypes = createServerFn({ method: "POST" })
         quantity: t.quantity,
         sort_order: index,
         is_active: true,
-      })),
-    );
+      })))
+      : { error: null };
     if (typeError) {
       await supabase.from("events").delete().eq("id", created.id);
       throw new Error(typeError.message);
@@ -381,8 +392,8 @@ export const lookupTicket = createServerFn({ method: "POST" })
     return {
       result: t.status === "valid" ? "valid" : t.status === "cancelled" ? "cancelled" : "already_used",
       holder_name: t.holder_name,
-      ticket_type: t.ticket_types?.name ?? "—",
-      event_title: t.events?.title ?? "—",
+      ticket_type: t.ticket_types?.name ?? "Nicht angegeben",
+      event_title: t.events?.title ?? "Nicht angegeben",
       event_starts_at: t.events?.starts_at ?? undefined,
       redeemed_at: t.redeemed_at,
     };

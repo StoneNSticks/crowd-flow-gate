@@ -19,7 +19,10 @@ const checkoutInput = z.object({
     .max(10),
 });
 
-export type CheckoutResult = { clientSecret: string } | { error: string };
+export type CheckoutResult =
+  | { clientSecret: string }
+  | { freeSessionId: string }
+  | { error: string };
 
 /**
  * Validates availability, records a pending order and opens the embedded checkout.
@@ -32,11 +35,14 @@ export const startCheckout = createServerFn({ method: "POST" })
 
     const { data: event } = await supabaseAdmin
       .from("events")
-      .select("id, slug, title, is_active, sales_start_at, sales_end_at, max_tickets")
+      .select("id, slug, title, is_active, sales_start_at, sales_end_at, max_tickets, participation_mode")
       .eq("slug", data.slug)
       .maybeSingle();
 
     if (!event || !event.is_active) return { error: "Diese Veranstaltung ist nicht im Verkauf." };
+    if (event.participation_mode === "open_free") {
+      return { error: "Für dieses offene Treffen ist keine Anmeldung erforderlich." };
+    }
 
     const now = Date.now();
     if (event.sales_start_at && new Date(event.sales_start_at).getTime() > now)
@@ -87,8 +93,10 @@ export const startCheckout = createServerFn({ method: "POST" })
       });
     }
 
-    if (amountCents < 50)
+    if (event.participation_mode === "paid" && amountCents < 50)
       return { error: "Der Gesamtbetrag ist zu gering für eine Online-Zahlung." };
+    if (event.participation_mode === "free_ticket" && amountCents !== 0)
+      return { error: "Diese Anmeldung ist ausschließlich für kostenlose Tickets vorgesehen." };
 
     if (event.max_tickets) {
       const { count } = await supabaseAdmin
@@ -124,6 +132,18 @@ export const startCheckout = createServerFn({ method: "POST" })
     );
     if (itemsError) return { error: itemsError.message };
 
+    if (event.participation_mode === "free_ticket") {
+      const freeSessionId = `free_${crypto.randomUUID()}`;
+      const { error: sessionError } = await supabaseAdmin
+        .from("orders")
+        .update({ provider_session_id: freeSessionId })
+        .eq("id", order.id);
+      if (sessionError) return { error: sessionError.message };
+      const { issueTicketsForOrder } = await import("@/lib/ticket-issuance.server");
+      await issueTicketsForOrder(supabaseAdmin, order.id);
+      return { freeSessionId };
+    }
+
     try {
       const stripe = createStripeClient(data.environment as StripeEnv);
       const session = await stripe.checkout.sessions.create({
@@ -137,7 +157,7 @@ export const startCheckout = createServerFn({ method: "POST" })
             currency: "eur",
             unit_amount: l.unitAmountCents,
             product_data: {
-              name: `${event.title} — ${l.name}`,
+              name: `${event.title}: ${l.name}`,
               ...(l.description ? { description: l.description } : {}),
             },
           },

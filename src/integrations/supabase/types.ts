@@ -25,6 +25,7 @@ export type Database = {
           id: string
           is_active: boolean
           max_tickets: number | null
+          participation_mode: string
           sales_end_at: string | null
           sales_start_at: string | null
           slug: string
@@ -43,6 +44,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_tickets?: number | null
+          participation_mode?: string
           sales_end_at?: string | null
           sales_start_at?: string | null
           slug: string
@@ -61,6 +63,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_tickets?: number | null
+          participation_mode?: string
           sales_end_at?: string | null
           sales_start_at?: string | null
           slug?: string
