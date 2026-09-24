@@ -26,6 +26,7 @@ export interface PublicEvent {
   sales_start_at: string | null;
   sales_end_at: string | null;
   max_tickets: number | null;
+  participation_mode: "paid" | "free_ticket" | "open_free";
 }
 
 export interface PublicEventDetail {
@@ -43,7 +44,7 @@ export interface PublicEventSummary extends PublicEvent {
 }
 
 const EVENT_COLUMNS =
-  "id, slug, title, description, starts_at, ends_at, venue_name, address, cover_image_url, sales_start_at, sales_end_at, max_tickets";
+  "id, slug, title, description, starts_at, ends_at, venue_name, address, cover_image_url, sales_start_at, sales_end_at, max_tickets, participation_mode";
 
 function computeSalesState(
   event: PublicEvent,
@@ -51,6 +52,7 @@ function computeSalesState(
   hasTypes: boolean,
 ): SalesState {
   const now = Date.now();
+  if (event.participation_mode === "open_free") return "open";
   if (event.sales_start_at && new Date(event.sales_start_at).getTime() > now) return "not_started";
   if (event.sales_end_at && new Date(event.sales_end_at).getTime() < now) return "ended";
   if (new Date(event.starts_at).getTime() < now - 6 * 60 * 60 * 1000) return "ended";
