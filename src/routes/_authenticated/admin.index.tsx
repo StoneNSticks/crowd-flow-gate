@@ -6,8 +6,20 @@ import { CalendarPlus, Loader2, Ticket, TrendingUp, Users } from "lucide-react";
 import { adminListEvents } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { formatDateTimeShort, formatMoney } from "@/lib/format";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
+  head: () => ({
+    meta: [
+      { title: `Events verwalten | ${BRAND_NAME}` },
+      { name: "description", content: "Events, Tickets und Verkaufszahlen verwalten." },
+      { property: "og:title", content: `Events verwalten | ${BRAND_NAME}` },
+      { property: "og:description", content: "Geschützte Eventübersicht." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: AdminDashboard,
 });
 
@@ -104,15 +116,18 @@ function AdminDashboard() {
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {formatDateTimeShort(event.starts_at)}
-                    {event.venue_name ? ` · ${event.venue_name}` : ""} · /event/{event.slug}
+                    {event.venue_name ? `, ${event.venue_name}` : ""} | /event/{event.slug}
                   </p>
                 </div>
                 <dl className="flex gap-6 text-sm">
                   <div>
-                    <dt className="text-muted-foreground">Verkauft</dt>
+                    <dt className="text-muted-foreground">
+                      {event.participation_mode === "open_free" ? "Teilnahme" : "Verkauft"}
+                    </dt>
                     <dd className="font-600">
-                      {event.ticketsSold}
-                      {event.capacity ? ` / ${event.capacity}` : ""}
+                      {event.participation_mode === "open_free"
+                        ? "Offen"
+                        : `${event.ticketsSold}${event.capacity ? ` / ${event.capacity}` : ""}`}
                     </dd>
                   </div>
                   <div>

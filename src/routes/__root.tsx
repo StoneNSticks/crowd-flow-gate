@@ -79,12 +79,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Goethe Connect — Tickets" },
+      { title: "Goethe Connected | Tickets" },
       {
         name: "description",
-        content: "Tickets für Veranstaltungen von Goethe Connect.",
+        content: "Tickets und offene Veranstaltungen von Goethe Connected.",
       },
-      { property: "og:site_name", content: "Goethe Connect" },
+      { property: "og:site_name", content: "Goethe Connected" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

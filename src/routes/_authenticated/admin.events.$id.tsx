@@ -26,8 +26,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateTimeShort, formatMoney } from "@/lib/format";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/_authenticated/admin/events/$id")({
+  head: () => ({
+    meta: [
+      { title: `Event bearbeiten | ${BRAND_NAME}` },
+      { name: "description", content: "Event, Ticketarten und Einlassdaten verwalten." },
+      { property: "og:title", content: `Event bearbeiten | ${BRAND_NAME}` },
+      { property: "og:description", content: "Geschützter Bereich zur Eventverwaltung." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: EventDetailPage,
 });
 
@@ -234,7 +246,7 @@ function TicketList({
                     <div className="font-500">{t.holder_name}</div>
                     <div className="text-xs text-muted-foreground">{t.holder_email}</div>
                   </td>
-                  <td className="px-4 py-3">{t.ticket_type_name ?? "—"}</td>
+                  <td className="px-4 py-3">{t.ticket_type_name ?? "Nicht angegeben"}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={t.status} />
                     {t.redeemed_at && (
@@ -477,7 +489,7 @@ function TicketTypeRow({
       return;
     }
     if (qty < type.sold) {
-      toast.error(`Es sind bereits ${type.sold} Tickets verkauft — Kontingent nicht kleiner setzen.`);
+      toast.error(`Es sind bereits ${type.sold} Tickets verkauft. Das Kontingent kann nicht kleiner sein.`);
       return;
     }
     onSave({
@@ -601,5 +613,6 @@ function toFormValues(event: any): EventFormValues {
     sales_end_at: event.sales_end_at,
     max_tickets: event.max_tickets,
     is_active: event.is_active,
+    participation_mode: event.participation_mode ?? "paid",
   };
 }

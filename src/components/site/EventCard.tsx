@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, MapPin } from "lucide-react";
+import { CalendarDays, MapPin, Users } from "lucide-react";
 import type { PublicEventSummary } from "@/lib/public-events.functions";
 import { formatDateTimeShort, formatPrice } from "@/lib/format";
 
 export function EventCard({ event }: { event: PublicEventSummary }) {
   const soldOut = event.salesState === "sold_out";
+  const openFree = event.participation_mode === "open_free";
+  const freeTicket = event.participation_mode === "free_ticket";
 
   return (
     <Link
@@ -33,6 +35,12 @@ export function EventCard({ event }: { event: PublicEventSummary }) {
             Verkauf startet bald
           </span>
         )}
+        {(openFree || freeTicket) && (
+          <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-success px-3 py-1 text-xs font-600 text-success-foreground">
+            <Users className="size-3.5" />
+            {openFree ? "Offen & kostenlos" : "Kostenloses Ticket"}
+          </span>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col p-5">
@@ -49,14 +57,18 @@ export function EventCard({ event }: { event: PublicEventSummary }) {
         )}
         <div className="mt-4 flex items-end justify-between pt-1">
           <span className="font-display text-base font-700">
-            {event.minPriceCents === null
-              ? "—"
+            {openFree
+              ? "Freier Eintritt"
+              : event.minPriceCents === null
+              ? "Nicht angegeben"
               : event.minPriceCents === 0
                 ? "Kostenlos"
                 : `ab ${formatPrice(event.minPriceCents)}`}
           </span>
           <span className="text-sm text-muted-foreground">
-            {soldOut
+            {openFree
+              ? "keine Anmeldung"
+              : soldOut
               ? "keine Tickets"
               : event.totalRemaining <= 10
                 ? `nur ${event.totalRemaining} übrig`

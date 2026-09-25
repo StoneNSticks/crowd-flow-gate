@@ -15,8 +15,20 @@ import { lookupTicket, redeemTicket, type ScanResult } from "@/lib/admin.functio
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatDateTime } from "@/lib/format";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/_authenticated/admin/scan")({
+  head: () => ({
+    meta: [
+      { title: `Tickets scannen | ${BRAND_NAME}` },
+      { name: "description", content: "Geschützte Einlasskontrolle für Veranstaltungstickets." },
+      { property: "og:title", content: `Tickets scannen | ${BRAND_NAME}` },
+      { property: "og:description", content: "Geschützte Einlasskontrolle." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: ScanPage,
 });
 

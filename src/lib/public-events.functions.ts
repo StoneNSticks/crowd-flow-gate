@@ -52,10 +52,10 @@ function computeSalesState(
   hasTypes: boolean,
 ): SalesState {
   const now = Date.now();
+  if (new Date(event.starts_at).getTime() < now - 6 * 60 * 60 * 1000) return "ended";
   if (event.participation_mode === "open_free") return "open";
   if (event.sales_start_at && new Date(event.sales_start_at).getTime() > now) return "not_started";
   if (event.sales_end_at && new Date(event.sales_end_at).getTime() < now) return "ended";
-  if (new Date(event.starts_at).getTime() < now - 6 * 60 * 60 * 1000) return "ended";
   if (!hasTypes) return "inactive";
   if (totalRemaining <= 0) return "sold_out";
   return "open";

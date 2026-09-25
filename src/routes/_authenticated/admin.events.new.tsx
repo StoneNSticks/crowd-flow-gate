@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+import { BRAND_NAME } from "@/lib/brand";
 import { adminCreateEventWithTypes } from "@/lib/admin.functions";
 import {
   EventForm,
@@ -12,6 +13,17 @@ import {
 } from "@/components/admin/EventForm";
 
 export const Route = createFileRoute("/_authenticated/admin/events/new")({
+  head: () => ({
+    meta: [
+      { title: `Neues Event | ${BRAND_NAME}` },
+      { name: "description", content: "Ein neues Event anlegen." },
+      { property: "og:title", content: `Neues Event | ${BRAND_NAME}` },
+      { property: "og:description", content: "Geschützter Bereich zum Anlegen eines Events." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: NewEventPage,
 });
 
@@ -33,7 +45,7 @@ function NewEventPage() {
     },
     onSuccess: async ({ id }) => {
       await queryClient.invalidateQueries({ queryKey: ["admin-events"] });
-      toast.success("Event mit Ticketarten angelegt.");
+      toast.success("Event angelegt.");
       navigate({ to: "/admin/events/$id", params: { id } });
     },
     onError: (error) => toast.error((error as Error).message),
@@ -49,8 +61,8 @@ function NewEventPage() {
       </Link>
       <h1 className="mt-4 font-display text-3xl font-700">Neues Event</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Veranstaltung und Ticketarten in einem Schritt anlegen — die Preise gelten sofort im
-        Kaufvorgang.
+        Wähle zwischen Ticketverkauf, kostenlosem QR-Ticket und einem offenen Treffen ohne
+        Anmeldung.
       </p>
       <div className="mt-8 rounded-2xl border border-border bg-card p-5 sm:p-7">
         <EventForm

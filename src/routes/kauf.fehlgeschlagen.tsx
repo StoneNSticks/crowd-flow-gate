@@ -9,13 +9,15 @@ export const Route = createFileRoute("/kauf/fehlgeschlagen")({
   validateSearch: z.object({ event: z.string().optional() }),
   head: () => ({
     meta: [
-      { title: `Zahlung abgebrochen — ${BRAND_NAME}` },
+      { title: `Zahlung abgebrochen | ${BRAND_NAME}` },
       {
         name: "description",
         content: "Die Zahlung wurde nicht abgeschlossen. Du kannst den Ticketkauf erneut starten.",
       },
-      { property: "og:title", content: `Zahlung abgebrochen — ${BRAND_NAME}` },
+      { property: "og:title", content: `Zahlung abgebrochen | ${BRAND_NAME}` },
       { property: "og:description", content: "Die Zahlung wurde nicht abgeschlossen." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),

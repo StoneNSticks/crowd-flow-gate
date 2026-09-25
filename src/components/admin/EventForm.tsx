@@ -1,5 +1,16 @@
 import { useMemo, useState } from "react";
-import { ArrowDown, ArrowUp, Loader2, Plus, Sparkles, Trash2, Upload } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Loader2,
+  Plus,
+  QrCode,
+  Sparkles,
+  Ticket,
+  Trash2,
+  Upload,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -23,7 +34,10 @@ export interface EventFormValues {
   sales_end_at: string | null;
   max_tickets: number | null;
   is_active: boolean;
+  participation_mode: EventParticipationMode;
 }
+
+export type EventParticipationMode = "paid" | "free_ticket" | "open_free";
 
 export interface TicketTypeDraft {
   name: string;
@@ -54,6 +68,7 @@ export function emptyEvent(): EventFormValues {
     sales_end_at: null,
     max_tickets: null,
     is_active: true,
+    participation_mode: "paid",
   };
 }
 
@@ -159,6 +174,20 @@ export function EventForm({
 
         let types: TicketTypeDraft[] = [];
         if (withTicketTypes) {
+          if (values.participation_mode === "open_free") {
+            onSubmit(
+              {
+                ...values,
+                slug: values.slug || slugify(values.title),
+                description: values.description?.trim() ? values.description : null,
+                venue_name: values.venue_name?.trim() ? values.venue_name : null,
+                address: values.address?.trim() ? values.address : null,
+                max_tickets: null,
+              },
+              [],
+            );
+            return;
+          }
           const filled = rows.filter(
             (r) => r.name.trim() || r.price.trim() || r.quantity.trim(),
           );
@@ -188,8 +217,15 @@ export function EventForm({
               quantity,
             });
           }
-          if (!types.some((t) => t.price_cents > 0)) {
+          if (values.participation_mode === "paid" && !types.some((t) => t.price_cents > 0)) {
             toast.error("Mindestens eine Ticketart muss einen Preis über 0 € haben.");
+            return;
+          }
+          if (
+            values.participation_mode === "free_ticket" &&
+            types.some((t) => t.price_cents !== 0)
+          ) {
+            toast.error("Bei kostenlosen QR-Tickets muss der Preis 0 € sein.");
             return;
           }
           const tooCheap = types.find((t) => t.price_cents > 0 && t.price_cents < 50);
@@ -217,6 +253,37 @@ export function EventForm({
           hint="Diese Angaben sehen Besucher auf der öffentlichen Event-Seite."
         />
         <div className="grid gap-4 sm:grid-cols-2">
+          {withTicketTypes && (
+            <div className="sm:col-span-2">
+              <Label>Art der Teilnahme</Label>
+              <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                <ModeButton
+                  active={values.participation_mode === "paid"}
+                  icon={<Ticket className="size-5" />}
+                  title="Event mit Verkauf"
+                  text="Tickets mit Preisen und Bezahlung"
+                  onClick={() => set("participation_mode", "paid")}
+                />
+                <ModeButton
+                  active={values.participation_mode === "free_ticket"}
+                  icon={<QrCode className="size-5" />}
+                  title="Kostenlos mit QR-Ticket"
+                  text="Anmeldung mit Name und E-Mail"
+                  onClick={() => {
+                    set("participation_mode", "free_ticket");
+                    setRows([newRow({ name: "Kostenloses Ticket", price: "0", quantity: "100" })]);
+                  }}
+                />
+                <ModeButton
+                  active={values.participation_mode === "open_free"}
+                  icon={<Users className="size-5" />}
+                  title="Offenes kostenloses Treffen"
+                  text="Ohne Anmeldung und ohne Ticket"
+                  onClick={() => set("participation_mode", "open_free")}
+                />
+              </div>
+            </div>
+          )}
           <Field label="Eventname" className="sm:col-span-2">
             <Input
               value={values.title}
@@ -243,20 +310,22 @@ export function EventForm({
             />
           </Field>
 
-          <Field
-            label="Maximale Tickets (optional)"
-            hint="Obergrenze über alle Ticketarten hinweg."
-          >
-            <Input
-              type="number"
-              min={0}
-              value={values.max_tickets ?? ""}
-              onChange={(e) =>
-                set("max_tickets", e.target.value === "" ? null : Number(e.target.value))
-              }
-              placeholder="z. B. 200"
-            />
-          </Field>
+          {values.participation_mode !== "open_free" && (
+            <Field
+              label="Maximale Tickets (optional)"
+              hint="Obergrenze über alle Ticketarten hinweg."
+            >
+              <Input
+                type="number"
+                min={0}
+                value={values.max_tickets ?? ""}
+                onChange={(e) =>
+                  set("max_tickets", e.target.value === "" ? null : Number(e.target.value))
+                }
+                placeholder="z. B. 200"
+              />
+            </Field>
+          )}
 
           <Field label="Beschreibung" className="sm:col-span-2">
             <Textarea
@@ -365,11 +434,15 @@ export function EventForm({
         </div>
       </section>
 
-      {withTicketTypes && (
+      {withTicketTypes && values.participation_mode !== "open_free" && (
         <section className="space-y-4">
           <SectionTitle
-            title="Ticketarten & Preise"
-            hint="Diese Preise werden beim Bezahlen automatisch übernommen."
+            title={values.participation_mode === "free_ticket" ? "Kostenlose Tickets" : "Ticketarten & Preise"}
+            hint={
+              values.participation_mode === "free_ticket"
+                ? "Besucher erhalten nach der Anmeldung direkt ein persönliches QR-Ticket."
+                : "Diese Preise werden beim Bezahlen automatisch übernommen."
+            }
           />
 
           <div className="space-y-3">
@@ -454,9 +527,9 @@ export function EventForm({
                   />
 
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Im Bezahlfenster:{" "}
+                    {values.participation_mode === "free_ticket" ? "Auf dem Ticket: " : "Im Bezahlfenster: "}
                     <span className="font-500 text-foreground">
-                      {(values.title || "Eventname") + " — " + (row.name || "Ticketart")}
+                      {(values.title || "Eventname") + ": " + (row.name || "Ticketart")}
                     </span>
                     {cents > 0 && cents < 50 && (
                       <span className="ml-2 text-destructive">
@@ -465,7 +538,7 @@ export function EventForm({
                     )}
                     {cents === 0 && row.price.trim() !== "" && (
                       <span className="ml-2 text-warning">
-                        Gratis-Ticket — nur zusammen mit einer bezahlten Ticketart buchbar.
+                        Dieses Ticket ist kostenlos.
                       </span>
                     )}
                   </p>
@@ -478,7 +551,7 @@ export function EventForm({
             <Button type="button" variant="outline" onClick={() => setRows((r) => [...r, newRow()])}>
               <Plus className="size-4" /> Ticketart hinzufügen
             </Button>
-            <Button
+            {values.participation_mode === "paid" && <Button
               type="button"
               variant="ghost"
               onClick={() =>
@@ -490,13 +563,15 @@ export function EventForm({
               }
             >
               <Sparkles className="size-4" /> Vorschlag einsetzen
-            </Button>
+            </Button>}
           </div>
 
           <div className="rounded-xl border border-border bg-card p-4 text-sm">
             <p>
-              Gesamtkontingent: <span className="font-600">{summary.quota}</span> Tickets · Möglicher
-              Umsatz: <span className="font-600">{formatMoney(summary.revenue)}</span>
+              Gesamtkontingent: <span className="font-600">{summary.quota}</span> Tickets
+              {values.participation_mode === "paid" && (
+                <> | Möglicher Umsatz: <span className="font-600">{formatMoney(summary.revenue)}</span></>
+              )}
             </p>
             {values.max_tickets != null && summary.quota > values.max_tickets && (
               <p className="mt-1 text-warning">
@@ -504,9 +579,9 @@ export function EventForm({
                 {values.max_tickets}). Der Verkauf stoppt bei {values.max_tickets}.
               </p>
             )}
-            {!summary.hasPaid && (
+            {values.participation_mode === "paid" && !summary.hasPaid && (
               <p className="mt-1 text-muted-foreground">
-                Noch keine bezahlte Ticketart — mindestens eine Ticketart braucht einen Preis.
+                Noch keine bezahlte Ticketart. Mindestens eine Ticketart braucht einen Preis.
               </p>
             )}
           </div>
@@ -557,5 +632,36 @@ function Field({
       {children}
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
+  );
+}
+
+function ModeButton({
+  active,
+  icon,
+  title,
+  text,
+  onClick,
+}: {
+  active: boolean;
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      type="button"
+      variant={active ? "default" : "outline"}
+      className="h-auto min-h-24 justify-start whitespace-normal p-4 text-left"
+      onClick={onClick}
+    >
+      <span className="shrink-0 self-start">{icon}</span>
+      <span>
+        <span className="block font-600">{title}</span>
+        <span className={`mt-1 block text-xs ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+          {text}
+        </span>
+      </span>
+    </Button>
   );
 }

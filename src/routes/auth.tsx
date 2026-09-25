@@ -18,13 +18,15 @@ export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: `Anmelden — ${BRAND_NAME}` },
+      { title: `Anmelden | ${BRAND_NAME}` },
       {
         name: "description",
         content: `Anmeldung zum Verwaltungsbereich von ${BRAND_NAME} für Event-Verwaltung und Einlasskontrolle.`,
       },
-      { property: "og:title", content: `Anmelden — ${BRAND_NAME}` },
+      { property: "og:title", content: `Anmelden | ${BRAND_NAME}` },
       { property: "og:description", content: "Interner Zugang für Veranstalter und Einlassteam." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),

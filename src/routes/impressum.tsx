@@ -5,10 +5,12 @@ import { BRAND_NAME } from "@/lib/brand";
 export const Route = createFileRoute("/impressum")({
   head: () => ({
     meta: [
-      { title: `Impressum — ${BRAND_NAME}` },
+      { title: `Impressum | ${BRAND_NAME}` },
       { name: "description", content: `Impressum und Anbieterkennzeichnung der ${BRAND_NAME}.` },
-      { property: "og:title", content: `Impressum — ${BRAND_NAME}` },
+      { property: "og:title", content: `Impressum | ${BRAND_NAME}` },
       { property: "og:description", content: `Impressum der ${BRAND_NAME}.` },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -24,7 +26,7 @@ function ImpressumPage() {
 
         <div className="mt-6 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
           <strong className="font-600">Platzhalter:</strong> Bitte ersetze die folgenden Angaben
-          durch die echten Daten des Veranstalters.
+            durch die echte Anschrift und Telefonnummer des Veranstalters.
         </div>
 
         <div className="mt-8 space-y-6 text-sm leading-relaxed text-muted-foreground">
@@ -49,13 +51,13 @@ function ImpressumPage() {
           </section>
           <section>
             <h2 className="text-base font-600 text-foreground">Vertreten durch</h2>
-            <p className="mt-2">Vor- und Nachname der vertretungsberechtigten Person</p>
+            <p className="mt-2">Alexander Albert</p>
           </section>
           <section>
             <h2 className="text-base font-600 text-foreground">
               Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV
             </h2>
-            <p className="mt-2">Vor- und Nachname, Adresse wie oben</p>
+            <p className="mt-2">Alexander Albert, Anschrift wie oben</p>
           </section>
           <section>
             <h2 className="text-base font-600 text-foreground">Streitschlichtung</h2>
