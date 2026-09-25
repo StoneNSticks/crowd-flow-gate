@@ -5,13 +5,15 @@ import { BRAND_NAME } from "@/lib/brand";
 export const Route = createFileRoute("/datenschutz")({
   head: () => ({
     meta: [
-      { title: `Datenschutz — ${BRAND_NAME}` },
+      { title: `Datenschutz | ${BRAND_NAME}` },
       {
         name: "description",
         content: `Informationen zum Umgang mit personenbezogenen Daten beim Ticketkauf bei ${BRAND_NAME}.`,
       },
-      { property: "og:title", content: `Datenschutz — ${BRAND_NAME}` },
+      { property: "og:title", content: `Datenschutz | ${BRAND_NAME}` },
       { property: "og:description", content: "Datenschutzhinweise zum Ticketkauf." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -34,7 +36,8 @@ function DatenschutzPage() {
           <section>
             <h2 className="text-base font-600 text-foreground">Verantwortlicher</h2>
             <p className="mt-2">
-              {BRAND_NAME}, Musterstraße 1, 12345 Musterstadt, tickets@example.com
+              Alexander Albert, {BRAND_NAME}, Musterstraße 1, 12345 Musterstadt,
+              tickets@example.com
             </p>
           </section>
           <section>

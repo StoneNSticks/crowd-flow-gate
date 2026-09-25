@@ -15,13 +15,13 @@ export const Route = createFileRoute("/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(eventsQuery),
   head: () => ({
     meta: [
-      { title: `${BRAND_NAME} — Tickets für kommende Veranstaltungen` },
+      { title: `${BRAND_NAME} | Kommende Veranstaltungen` },
       {
         name: "description",
         content:
           "Alle kommenden Veranstaltungen auf einen Blick: Tickets online kaufen, personalisiertes Ticket mit QR-Code erhalten und direkt am Eingang einlösen.",
       },
-      { property: "og:title", content: `${BRAND_NAME} — Tickets für kommende Veranstaltungen` },
+      { property: "og:title", content: `${BRAND_NAME} | Kommende Veranstaltungen` },
       {
         property: "og:description",
         content: "Tickets online kaufen und mit QR-Code direkt am Eingang einlösen.",

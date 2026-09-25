@@ -234,7 +234,7 @@ function TicketList({
                     <div className="font-500">{t.holder_name}</div>
                     <div className="text-xs text-muted-foreground">{t.holder_email}</div>
                   </td>
-                  <td className="px-4 py-3">{t.ticket_type_name ?? "—"}</td>
+                  <td className="px-4 py-3">{t.ticket_type_name ?? "Nicht angegeben"}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={t.status} />
                     {t.redeemed_at && (
@@ -477,7 +477,7 @@ function TicketTypeRow({
       return;
     }
     if (qty < type.sold) {
-      toast.error(`Es sind bereits ${type.sold} Tickets verkauft — Kontingent nicht kleiner setzen.`);
+      toast.error(`Es sind bereits ${type.sold} Tickets verkauft. Das Kontingent kann nicht kleiner sein.`);
       return;
     }
     onSave({
@@ -601,5 +601,6 @@ function toFormValues(event: any): EventFormValues {
     sales_end_at: event.sales_end_at,
     max_tickets: event.max_tickets,
     is_active: event.is_active,
+    participation_mode: event.participation_mode ?? "paid",
   };
 }

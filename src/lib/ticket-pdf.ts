@@ -27,7 +27,7 @@ export async function downloadTicketPdf(ticket: PublicTicket) {
   doc.text(BRAND_NAME, margin, 17);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.text("Eintrittsticket — bitte am Eingang vorzeigen", margin, 25);
+  doc.text("Eintrittsticket. Bitte am Eingang vorzeigen", margin, 25);
 
   // Event
   doc.setTextColor(16, 20, 38);
