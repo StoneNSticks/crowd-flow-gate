@@ -16,13 +16,15 @@ export const Route = createFileRoute("/ticket/$id")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(ticketQuery(params.id)),
   head: () => ({
     meta: [
-      { title: `Dein Ticket — ${BRAND_NAME}` },
+      { title: `Dein Ticket | ${BRAND_NAME}` },
       {
         name: "description",
         content: "Dein persönliches Ticket mit QR-Code für den Einlass zur Veranstaltung.",
       },
-      { property: "og:title", content: `Dein Ticket — ${BRAND_NAME}` },
+      { property: "og:title", content: `Dein Ticket | ${BRAND_NAME}` },
       { property: "og:description", content: "Persönliches Ticket mit QR-Code." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -61,7 +63,7 @@ function TicketPage() {
           <TicketCard ticket={ticket} />
         </div>
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Speichere diesen Link oder mach einen Screenshot — am Eingang wird nur der QR-Code
+          Speichere diesen Link oder mach einen Screenshot. Am Eingang wird nur der QR-Code
           gescannt.
         </p>
         <div className="mt-4 flex justify-center">

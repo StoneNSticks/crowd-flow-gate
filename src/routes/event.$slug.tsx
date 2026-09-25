@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -28,7 +28,12 @@ export const Route = createFileRoute("/event/$slug")({
     if (!detail) {
       return {
         meta: [
-          { title: `Veranstaltung nicht verfügbar — ${BRAND_NAME}` },
+          { title: `Veranstaltung nicht verfügbar | ${BRAND_NAME}` },
+          { name: "description", content: "Diese Veranstaltung ist nicht verfügbar." },
+          { property: "og:title", content: `Veranstaltung nicht verfügbar | ${BRAND_NAME}` },
+          { property: "og:description", content: "Diese Veranstaltung ist nicht verfügbar." },
+          { property: "og:type", content: "website" },
+          { name: "twitter:card", content: "summary" },
           { name: "robots", content: "noindex" },
         ],
       };
@@ -45,9 +50,9 @@ export const Route = createFileRoute("/event/$slug")({
         : null;
     return {
       meta: [
-        { title: `${event.title} — Tickets | ${BRAND_NAME}` },
+        { title: `${event.title} | ${BRAND_NAME}` },
         { name: "description", content: description },
-        { property: "og:title", content: `${event.title} — Tickets` },
+        { property: "og:title", content: event.title },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
@@ -158,6 +163,7 @@ function EventPage() {
 
 function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
   const { ticketTypes, salesState, event } = detail;
+  const navigate = useNavigate();
   const checkout = useServerFn(startCheckout);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [name, setName] = useState("");
@@ -172,6 +178,8 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
   );
   const count = Object.values(quantities).reduce((a, b) => a + b, 0);
   const closed = salesState !== "open";
+  const openFree = event.participation_mode === "open_free";
+  const freeTicket = event.participation_mode === "free_ticket";
 
   function change(id: string, delta: number, max: number) {
     setQuantities((q) => {
@@ -205,7 +213,11 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
         },
       });
       if ("error" in res) throw new Error(res.error);
-      setClientSecret(res.clientSecret);
+      if ("freeSessionId" in res) {
+        navigate({ to: "/kauf/erfolg", search: { session: res.freeSessionId } });
+      } else {
+        setClientSecret(res.clientSecret);
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Kauf konnte nicht gestartet werden.");
     } finally {
@@ -217,9 +229,18 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
     <div id="tickets" className="card-surface p-5 sm:p-6">
       <h2 className="font-display text-lg font-700">Tickets</h2>
 
+      {openFree && (
+        <div className="mt-4 rounded-xl border border-success/40 bg-success/10 p-4">
+          <p className="font-600 text-success">Offen &amp; kostenlos</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Keine Anmeldung erforderlich. Komm einfach zum angegebenen Termin und Ort vorbei.
+          </p>
+        </div>
+      )}
+
       {closed && <SalesNotice detail={detail} />}
 
-      {ticketTypes.length === 0 ? (
+      {openFree ? null : ticketTypes.length === 0 ? (
         <p className="mt-4 text-sm text-muted-foreground">
           Für diese Veranstaltung sind noch keine Tickets eingerichtet.
         </p>
@@ -312,18 +333,27 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
 
           <Button type="submit" size="lg" className="w-full" disabled={closed || busy}>
             {busy && <Loader2 className="size-4 animate-spin" />}
-            {closed ? salesButtonLabel(detail) : "Jetzt kaufen"}
+            {closed ? salesButtonLabel(detail) : freeTicket ? "Kostenlos anmelden" : "Jetzt kaufen"}
           </Button>
 
-          <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-            <ShieldCheck className="size-3.5" />
-            Sichere Zahlung, keine Kartendaten bei uns gespeichert.
-          </p>
+          {freeTicket ? (
+            <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <ShieldCheck className="size-3.5" />
+              Dein persönliches QR-Ticket wird sofort erstellt.
+            </p>
+          ) : (
+            <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <ShieldCheck className="size-3.5" />
+              Sichere Zahlung, keine Kartendaten bei uns gespeichert.
+            </p>
+          )}
 
-          <p className="rounded-lg bg-muted/60 p-3 text-center text-xs text-muted-foreground">
-            Alle Tickets sind vom Umtausch ausgeschlossen: Ein Storno oder eine
-            Rückerstattung ist nach dem Kauf nicht möglich.
-          </p>
+          {!freeTicket && (
+            <p className="rounded-lg bg-muted/60 p-3 text-center text-xs text-muted-foreground">
+              Alle Tickets sind vom Umtausch ausgeschlossen: Ein Storno oder eine
+              Rückerstattung ist nach dem Kauf nicht möglich.
+            </p>
+          )}
         </form>
       )}
 
@@ -334,9 +364,12 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
 
 function SalesNotice({ detail }: { detail: PublicEventDetail }) {
   const { salesState, event } = detail;
+  const salesStart = event.sales_start_at;
   const text =
     salesState === "not_started"
-      ? `Der Verkauf startet am ${formatDateTime(event.sales_start_at!)}.`
+      ? salesStart
+        ? `Der Verkauf startet am ${formatDateTime(salesStart)}.`
+        : "Der Verkauf hat noch nicht begonnen."
       : salesState === "ended"
         ? "Der Verkauf für diese Veranstaltung ist beendet."
         : salesState === "sold_out"
@@ -370,20 +403,30 @@ function MobileBar({
   types: PublicEventDetail["ticketTypes"];
 }) {
   const min = types.length ? Math.min(...types.map((t) => t.price_cents)) : null;
+  const openFree = detail.event.participation_mode === "open_free";
+  const freeTicket = detail.event.participation_mode === "free_ticket";
   return (
     <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 p-3 backdrop-blur lg:hidden">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-xs text-muted-foreground">
-            {salesState === "sold_out" ? "Ausverkauft" : "Tickets"}
+            {openFree ? "Offenes Treffen" : salesState === "sold_out" ? "Ausverkauft" : "Tickets"}
           </p>
           <p className="font-display text-base font-700">
-            {min === null ? "—" : min === 0 ? "Kostenlos" : `ab ${formatPrice(min)}`}
+            {openFree ? "Freier Eintritt" : min === null ? "Nicht angegeben" : min === 0 ? "Kostenlos" : `ab ${formatPrice(min)}`}
           </p>
         </div>
-        <Button asChild size="lg" disabled={salesState !== "open"}>
-          <a href="#tickets">{salesState === "open" ? "Tickets wählen" : salesButtonLabel(detail)}</a>
-        </Button>
+        {!openFree && (
+          <Button asChild size="lg" disabled={salesState !== "open"}>
+            <a href="#tickets">
+              {salesState === "open"
+                ? freeTicket
+                  ? "Kostenlos anmelden"
+                  : "Tickets wählen"
+                : salesButtonLabel(detail)}
+            </a>
+          </Button>
+        )}
       </div>
     </div>
   );
