@@ -104,15 +104,18 @@ function AdminDashboard() {
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {formatDateTimeShort(event.starts_at)}
-                    {event.venue_name ? ` · ${event.venue_name}` : ""} · /event/{event.slug}
+                    {event.venue_name ? `, ${event.venue_name}` : ""} | /event/{event.slug}
                   </p>
                 </div>
                 <dl className="flex gap-6 text-sm">
                   <div>
-                    <dt className="text-muted-foreground">Verkauft</dt>
+                    <dt className="text-muted-foreground">
+                      {event.participation_mode === "open_free" ? "Teilnahme" : "Verkauft"}
+                    </dt>
                     <dd className="font-600">
-                      {event.ticketsSold}
-                      {event.capacity ? ` / ${event.capacity}` : ""}
+                      {event.participation_mode === "open_free"
+                        ? "Offen"
+                        : `${event.ticketsSold}${event.capacity ? ` / ${event.capacity}` : ""}`}
                     </dd>
                   </div>
                   <div>

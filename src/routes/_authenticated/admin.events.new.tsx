@@ -33,7 +33,7 @@ function NewEventPage() {
     },
     onSuccess: async ({ id }) => {
       await queryClient.invalidateQueries({ queryKey: ["admin-events"] });
-      toast.success("Event mit Ticketarten angelegt.");
+      toast.success("Event angelegt.");
       navigate({ to: "/admin/events/$id", params: { id } });
     },
     onError: (error) => toast.error((error as Error).message),
@@ -49,8 +49,8 @@ function NewEventPage() {
       </Link>
       <h1 className="mt-4 font-display text-3xl font-700">Neues Event</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Veranstaltung und Ticketarten in einem Schritt anlegen — die Preise gelten sofort im
-        Kaufvorgang.
+        Wähle zwischen Ticketverkauf, kostenlosem QR-Ticket und einem offenen Treffen ohne
+        Anmeldung.
       </p>
       <div className="mt-8 rounded-2xl border border-border bg-card p-5 sm:p-7">
         <EventForm
