@@ -6,8 +6,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { getMyRoles } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { BRAND_SHORT } from "@/lib/brand";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  head: () => ({
+    meta: [
+      { title: `Verwaltung | ${BRAND_NAME}` },
+      { name: "description", content: `Geschützter Verwaltungsbereich von ${BRAND_NAME}.` },
+      { property: "og:title", content: `Verwaltung | ${BRAND_NAME}` },
+      { property: "og:description", content: "Geschützter Bereich für Events und Einlass." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: AdminLayout,
   errorComponent: ({ error }) => (
     <div className="mx-auto max-w-lg px-4 py-20 text-center">

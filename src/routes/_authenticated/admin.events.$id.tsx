@@ -26,8 +26,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateTimeShort, formatMoney } from "@/lib/format";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/_authenticated/admin/events/$id")({
+  head: () => ({
+    meta: [
+      { title: `Event bearbeiten | ${BRAND_NAME}` },
+      { name: "description", content: "Event, Ticketarten und Einlassdaten verwalten." },
+      { property: "og:title", content: `Event bearbeiten | ${BRAND_NAME}` },
+      { property: "og:description", content: "Geschützter Bereich zur Eventverwaltung." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: EventDetailPage,
 });
 

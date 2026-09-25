@@ -6,8 +6,20 @@ import { CalendarPlus, Loader2, Ticket, TrendingUp, Users } from "lucide-react";
 import { adminListEvents } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { formatDateTimeShort, formatMoney } from "@/lib/format";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
+  head: () => ({
+    meta: [
+      { title: `Events verwalten | ${BRAND_NAME}` },
+      { name: "description", content: "Events, Tickets und Verkaufszahlen verwalten." },
+      { property: "og:title", content: `Events verwalten | ${BRAND_NAME}` },
+      { property: "og:description", content: "Geschützte Eventübersicht." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: AdminDashboard,
 });
 

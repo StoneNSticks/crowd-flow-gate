@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+import { BRAND_NAME } from "@/lib/brand";
 import { adminCreateEventWithTypes } from "@/lib/admin.functions";
 import {
   EventForm,
@@ -12,6 +13,17 @@ import {
 } from "@/components/admin/EventForm";
 
 export const Route = createFileRoute("/_authenticated/admin/events/new")({
+  head: () => ({
+    meta: [
+      { title: `Neues Event | ${BRAND_NAME}` },
+      { name: "description", content: "Ein neues Event anlegen." },
+      { property: "og:title", content: `Neues Event | ${BRAND_NAME}` },
+      { property: "og:description", content: "Geschützter Bereich zum Anlegen eines Events." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: NewEventPage,
 });
 

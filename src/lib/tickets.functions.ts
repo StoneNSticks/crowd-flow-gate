@@ -48,7 +48,7 @@ function mapTicket(row: any): PublicTicket {
   };
 }
 
-/** Ticket lookup by its unguessable id — the buyer's personal ticket link. */
+/** Ticket lookup by its unguessable id, used as the buyer's personal ticket link. */
 export const getTicketById = createServerFn({ method: "GET" })
   .inputValidator((data: { id: string }) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data }): Promise<PublicTicket | null> => {
@@ -61,7 +61,7 @@ export const getTicketById = createServerFn({ method: "GET" })
     return row ? mapTicket(row) : null;
   });
 
-/** All tickets of one completed checkout session — used on the success page. */
+/** All tickets of one completed checkout session, used on the success page. */
 export const getTicketsBySession = createServerFn({ method: "GET" })
   .inputValidator((data: { sessionId: string }) =>
     z.object({ sessionId: z.string().min(6).max(300) }).parse(data),
