@@ -227,7 +227,7 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
 
   return (
     <div id="tickets" className="card-surface p-5 sm:p-6">
-      <h2 className="font-display text-lg font-700">Tickets</h2>
+      <h2 className="font-display text-lg font-700">{openFree ? "Teilnahme" : "Tickets"}</h2>
 
       {openFree && (
         <div className="mt-4 rounded-xl border border-success/40 bg-success/10 p-4">

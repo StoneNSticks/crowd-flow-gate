@@ -56,6 +56,7 @@ function SuccessPage() {
   }
 
   const tickets = data?.tickets ?? [];
+  const freeRegistration = tickets.length > 0 && tickets.every((ticket) => ticket.price_cents === 0);
 
   return (
     <PublicLayout>
@@ -95,10 +96,12 @@ function SuccessPage() {
           ))}
         </div>
 
-        <p className="mt-8 rounded-lg bg-muted/60 p-4 text-center text-xs text-muted-foreground">
-          Hinweis: Tickets sind vom Umtausch ausgeschlossen. Ein Storno oder eine
-          Rückerstattung ist nach dem Kauf nicht möglich.
-        </p>
+        {!freeRegistration && (
+          <p className="mt-8 rounded-lg bg-muted/60 p-4 text-center text-xs text-muted-foreground">
+            Hinweis: Tickets sind vom Umtausch ausgeschlossen. Ein Storno oder eine
+            Rückerstattung ist nach dem Kauf nicht möglich.
+          </p>
+        )}
       </div>
     </PublicLayout>
   );

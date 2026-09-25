@@ -310,20 +310,22 @@ export function EventForm({
             />
           </Field>
 
-          <Field
-            label="Maximale Tickets (optional)"
-            hint="Obergrenze über alle Ticketarten hinweg."
-          >
-            <Input
-              type="number"
-              min={0}
-              value={values.max_tickets ?? ""}
-              onChange={(e) =>
-                set("max_tickets", e.target.value === "" ? null : Number(e.target.value))
-              }
-              placeholder="z. B. 200"
-            />
-          </Field>
+          {values.participation_mode !== "open_free" && (
+            <Field
+              label="Maximale Tickets (optional)"
+              hint="Obergrenze über alle Ticketarten hinweg."
+            >
+              <Input
+                type="number"
+                min={0}
+                value={values.max_tickets ?? ""}
+                onChange={(e) =>
+                  set("max_tickets", e.target.value === "" ? null : Number(e.target.value))
+                }
+                placeholder="z. B. 200"
+              />
+            </Field>
+          )}
 
           <Field label="Beschreibung" className="sm:col-span-2">
             <Textarea
@@ -525,9 +527,9 @@ export function EventForm({
                   />
 
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Im Bezahlfenster:{" "}
+                    {values.participation_mode === "free_ticket" ? "Auf dem Ticket: " : "Im Bezahlfenster: "}
                     <span className="font-500 text-foreground">
-                      {(values.title || "Eventname") + " — " + (row.name || "Ticketart")}
+                      {(values.title || "Eventname") + ": " + (row.name || "Ticketart")}
                     </span>
                     {cents > 0 && cents < 50 && (
                       <span className="ml-2 text-destructive">
@@ -566,8 +568,10 @@ export function EventForm({
 
           <div className="rounded-xl border border-border bg-card p-4 text-sm">
             <p>
-              Gesamtkontingent: <span className="font-600">{summary.quota}</span> Tickets · Möglicher
-              Umsatz: <span className="font-600">{formatMoney(summary.revenue)}</span>
+              Gesamtkontingent: <span className="font-600">{summary.quota}</span> Tickets
+              {values.participation_mode === "paid" && (
+                <> | Möglicher Umsatz: <span className="font-600">{formatMoney(summary.revenue)}</span></>
+              )}
             </p>
             {values.max_tickets != null && summary.quota > values.max_tickets && (
               <p className="mt-1 text-warning">
