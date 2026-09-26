@@ -8,6 +8,7 @@ import { getPublicEvent, type PublicEventDetail } from "@/lib/public-events.func
 import { startCheckout } from "@/lib/checkout.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { CheckoutDialog } from "@/components/checkout/CheckoutDialog";
+import { AddToCalendarButton } from "@/components/AddToCalendarButton";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -143,6 +144,8 @@ function EventPage() {
               />
             )}
           </dl>
+
+          <AddToCalendarButton event={event} className="mt-4" />
 
           {event.description && (
             <div className="mt-8 whitespace-pre-line text-[0.975rem] leading-relaxed text-muted-foreground">
