@@ -7,9 +7,9 @@ function generateTicketCode(): string {
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
   let out = "";
-  for (const byte of bytes) {
+  for (const [index, byte] of bytes.entries()) {
+    if (index > 0 && index % 4 === 0) out += "-";
     out += ALPHABET[byte % ALPHABET.length];
-    if (out.length % 5 === 4 && out.length < 29) out += "-";
   }
   return out;
 }
