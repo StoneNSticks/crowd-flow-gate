@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CalendarDays, Download, Loader2, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { QrCode } from "@/components/QrCode";
+import { AddToCalendarButton } from "@/components/AddToCalendarButton";
 import { Button } from "@/components/ui/button";
 import type { PublicTicket } from "@/lib/tickets.functions";
 import { formatDateTime, formatPrice } from "@/lib/format";
@@ -61,6 +62,7 @@ export function TicketCard({ ticket }: { ticket: PublicTicket }) {
           )}
           Ticket als PDF herunterladen
         </Button>
+        <AddToCalendarButton event={ticket.event} className="mt-2 w-full" />
       </div>
 
       <dl className="space-y-3 border-t border-dashed border-border px-5 py-5 text-sm">

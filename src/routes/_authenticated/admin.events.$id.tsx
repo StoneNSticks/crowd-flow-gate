@@ -7,6 +7,7 @@ import {
   ArrowDown,
   ArrowLeft,
   ArrowUp,
+  Download,
   ExternalLink,
   Loader2,
   Plus,
@@ -144,7 +145,7 @@ function EventDetailPage() {
         </TabsList>
 
         <TabsContent value="tickets" className="mt-5">
-          <TicketList eventId={id} tickets={tickets} onChanged={refresh} />
+          <TicketList eventId={id} eventSlug={event.slug} tickets={tickets} onChanged={refresh} />
         </TabsContent>
 
         <TabsContent value="types" className="mt-5">
@@ -184,10 +185,12 @@ function EventDetailPage() {
 
 function TicketList({
   eventId,
+  eventSlug,
   tickets,
   onChanged,
 }: {
   eventId: string;
+  eventSlug?: string;
   tickets: any[];
   onChanged: () => Promise<unknown>;
 }) {
@@ -214,14 +217,50 @@ function TicketList({
     );
   }, [query, tickets]);
 
+  function exportCsv() {
+    const statusLabel: Record<string, string> = {
+      valid: "Nicht eingelöst",
+      redeemed: "Eingelöst",
+      cancelled: "Storniert",
+    };
+    const cell = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString("de-DE") : "");
+    const rows = [
+      ["Name", "E-Mail", "Ticketart", "Einlassstatus", "Eingelöst am", "Gekauft am", "Ticketcode"],
+      ...tickets.map((t) => [
+        t.holder_name,
+        t.holder_email,
+        t.ticket_type_name ?? "Nicht angegeben",
+        statusLabel[t.status] ?? t.status,
+        fmt(t.redeemed_at),
+        fmt(t.created_at),
+        t.code,
+      ]),
+    ];
+    const csv = "\uFEFF" + rows.map((r) => r.map(cell).join(";")).join("\r\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    a.download = `teilnehmer-${eventSlug || eventId}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
   return (
     <div>
-      <Input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Suche nach Name, E-Mail, Code oder Kategorie"
-        className="max-w-sm"
-      />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Suche nach Name, E-Mail, Code oder Kategorie"
+          className="max-w-sm"
+        />
+        <Button variant="outline" disabled={tickets.length === 0} onClick={exportCsv}>
+          <Download className="size-4" />
+          Teilnehmer als CSV
+        </Button>
+      </div>
       {filtered.length === 0 ? (
         <p className="mt-6 rounded-xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
           {tickets.length === 0 ? "Noch keine Tickets verkauft." : "Keine Treffer."}
