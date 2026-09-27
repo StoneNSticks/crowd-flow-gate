@@ -49,13 +49,13 @@ function HomePage() {
   return (
     <PublicLayout>
       <section className="surface-ink">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
           <p className="text-eyebrow text-accent">Veranstaltungen &amp; Tickets</p>
-          <h1 className="mt-3 max-w-2xl font-display text-4xl font-700 leading-[1.08] tracking-tight sm:text-5xl">
+          <h1 className="mt-3 max-w-2xl font-display text-3xl font-700 leading-tight sm:text-4xl lg:text-5xl">
             Tickets kaufen, Ticket aufs Handy, rein in die Veranstaltung.
           </h1>
-          <p className="mt-4 max-w-xl text-base text-ink-muted sm:text-lg">{BRAND_TAGLINE}</p>
-          <ul className="mt-9 grid gap-4 sm:grid-cols-3">
+          <p className="mt-3 max-w-xl text-sm text-ink-muted sm:text-base lg:text-lg">{BRAND_TAGLINE}</p>
+          <ul className="mt-6 grid gap-2.5 min-[520px]:grid-cols-3 sm:mt-8 sm:gap-4">
             <Feature
               icon={<CalendarDays className="size-5" />}
               title="Alle Termine"
@@ -75,14 +75,14 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+      <section className="mx-auto max-w-6xl px-4 py-9 sm:px-6 sm:py-12">
         <h2 className="font-display text-2xl font-700">Kommende Veranstaltungen</h2>
         {upcoming.length === 0 ? (
           <p className="mt-6 rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
             Derzeit sind keine Veranstaltungen im Verkauf. Schau bald wieder vorbei.
           </p>
         ) : (
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {upcoming.map((event) => (
               <EventCard key={event.id} event={event} />
             ))}
@@ -91,10 +91,10 @@ function HomePage() {
 
         {past.length > 0 && (
           <>
-            <h2 className="mt-16 font-display text-xl font-700 text-muted-foreground">
+            <h2 className="mt-12 font-display text-xl font-700 text-muted-foreground">
               Vergangene Veranstaltungen
             </h2>
-            <div className="mt-6 grid gap-5 opacity-70 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-5 grid gap-4 opacity-70 sm:grid-cols-2 xl:grid-cols-3">
               {past.map((event) => (
                 <EventCard key={event.id} event={event} />
               ))}
@@ -116,12 +116,14 @@ function Feature({
   text: string;
 }) {
   return (
-    <li className="rounded-2xl border border-white/10 bg-white/5 p-5">
-      <span className="flex size-9 items-center justify-center rounded-lg bg-accent/15 text-accent">
+    <li className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 rounded-xl border border-white/10 bg-white/5 p-3.5 min-[520px]:block sm:p-4">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
         {icon}
       </span>
-      <h3 className="mt-3 font-display text-base font-600">{title}</h3>
-      <p className="mt-1 text-sm text-ink-muted">{text}</p>
+      <div className="min-w-0">
+        <h3 className="font-display text-sm font-600 min-[520px]:mt-3 sm:text-base">{title}</h3>
+        <p className="mt-1 text-xs leading-relaxed text-ink-muted sm:text-sm">{text}</p>
+      </div>
     </li>
   );
 }
