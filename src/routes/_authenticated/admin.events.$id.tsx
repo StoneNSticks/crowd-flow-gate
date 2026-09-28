@@ -318,8 +318,7 @@ function TicketList({
                     {t.redeemed_at && (
                       <div className="mt-0.5 text-xs text-muted-foreground">
                         {formatDateTimeShort(t.redeemed_at)}
-         </div>
-         </>
+                      </div>
                     )}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
@@ -346,6 +345,7 @@ function TicketList({
             </tbody>
           </table>
         </div>
+         </>
       )}
          <p className="mt-3 break-words text-xs text-muted-foreground">
         Tickets sind nicht erstattbar. Ein storniertes Ticket wird beim Scannen sofort abgewiesen.
