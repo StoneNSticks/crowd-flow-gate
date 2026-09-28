@@ -98,9 +98,9 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      <main className="flex flex-1 items-center justify-center px-4 py-12">
+      <main className="flex flex-1 items-center justify-center px-3 py-8 min-[360px]:px-4 sm:py-12">
         <div className="w-full max-w-md">
-          <div className="card-surface p-6 sm:p-8">
+          <div className="card-surface p-4 min-[360px]:p-5 sm:p-8">
             <span className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <ShieldCheck className="size-5" />
             </span>
@@ -148,18 +148,19 @@ function AuthPage() {
               </Button>
             </form>
 
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => {
                 setMode(mode === "signin" ? "signup" : "signin");
                 setInfo(null);
               }}
-              className="mt-5 w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              className="mt-4 h-auto min-h-11 w-full whitespace-normal py-2 text-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             >
               {mode === "signin"
                 ? "Noch kein Konto? Jetzt registrieren"
                 : "Bereits registriert? Zur Anmeldung"}
-            </button>
+            </Button>
           </div>
           <p className="mt-4 text-center text-xs text-muted-foreground">
             Neue Konten erhalten erst nach Freigabe durch eine Administratorin oder einen

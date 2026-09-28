@@ -20,16 +20,16 @@ export const Route = createFileRoute("/impressum")({
 function ImpressumPage() {
   return (
     <PublicLayout>
-      <div className="mx-auto max-w-2xl px-4 py-14 sm:px-6">
+      <div className="mx-auto max-w-2xl px-4 py-9 sm:px-6 sm:py-14">
         <p className="text-eyebrow text-muted-foreground">Rechtliches</p>
-        <h1 className="mt-2 text-3xl font-700">Impressum</h1>
+        <h1 className="mt-2 text-2xl font-700 sm:text-3xl">Impressum</h1>
 
         <div className="mt-6 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
           <strong className="font-600">Platzhalter:</strong> Bitte ersetze die folgenden Angaben
             durch die echte Anschrift und Telefonnummer des Veranstalters.
         </div>
 
-        <div className="mt-8 space-y-6 text-sm leading-relaxed text-muted-foreground">
+        <div className="mt-7 space-y-6 break-words text-sm leading-relaxed text-muted-foreground">
           <section>
             <h2 className="text-base font-600 text-foreground">Angaben gemäß § 5 DDG</h2>
             <p className="mt-2">

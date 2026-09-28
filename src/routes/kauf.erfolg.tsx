@@ -42,7 +42,7 @@ function SuccessPage() {
   if (!session) {
     return (
       <PublicLayout>
-        <div className="mx-auto max-w-lg px-4 py-24 text-center">
+        <div className="mx-auto max-w-lg px-4 py-16 text-center sm:py-24">
           <h1 className="font-display text-2xl font-700">Kein Kauf gefunden</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Bitte öffne die Bestätigungsseite über den Link nach der Zahlung.
@@ -60,10 +60,10 @@ function SuccessPage() {
 
   return (
     <PublicLayout>
-      <div className="mx-auto max-w-lg px-4 py-10 sm:py-14">
-        <div className="flex items-center gap-2 text-success">
+      <div className="mx-auto max-w-lg px-3 py-7 min-[360px]:px-4 sm:py-12">
+        <div className="flex items-start gap-2 text-success">
           <CheckCircle2 className="size-6" />
-          <p className="font-display text-lg font-700">Ticket erfolgreich erstellt</p>
+          <p className="font-display text-base font-700 sm:text-lg">Ticket erfolgreich erstellt</p>
         </div>
         <h1 className="mt-3 font-display text-2xl font-700">
           {tickets.length > 1 ? "Deine Tickets" : "Dein Ticket"}
@@ -73,7 +73,7 @@ function SuccessPage() {
         </p>
 
         {(isPending || data?.status !== "paid") && tickets.length === 0 && (
-          <div className="mt-8 flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-10 text-center">
+           <div className="mt-7 flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-6 text-center sm:p-10">
             <Loader2 className="size-5 animate-spin text-muted-foreground" />
             <p className="text-sm text-muted-foreground">
               Dein Ticket wird erstellt. Es erscheint in wenigen Sekunden automatisch.
@@ -86,7 +86,7 @@ function SuccessPage() {
             <div key={ticket.id}>
               <TicketCard ticket={ticket} />
               <div className="mt-3 text-center">
-                <Button variant="outline" size="sm" asChild>
+                <Button variant="outline" size="sm" className="w-full min-[420px]:w-auto" asChild>
                   <Link to="/ticket/$id" params={{ id: ticket.id }}>
                     Dauerhafter Ticket-Link
                   </Link>

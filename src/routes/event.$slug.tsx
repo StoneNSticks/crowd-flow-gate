@@ -102,7 +102,7 @@ function EventPage() {
   return (
     <PublicLayout>
       {event.cover_image_url ? (
-        <div className="relative aspect-[16/9] max-h-[420px] w-full overflow-hidden bg-muted sm:aspect-[21/9]">
+        <div className="relative aspect-[16/10] max-h-[420px] w-full overflow-hidden bg-muted sm:aspect-[21/9]">
           <img
             src={event.cover_image_url}
             alt={event.title}
@@ -110,17 +110,17 @@ function EventPage() {
           />
         </div>
       ) : (
-        <div className="hero-gradient h-32 w-full sm:h-40" />
+        <div className="hero-gradient h-24 w-full sm:h-36" />
       )}
 
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 pb-28 pt-8 sm:px-6 lg:grid-cols-[1.4fr_1fr] lg:pb-16">
-        <div>
+      <div className="mx-auto grid max-w-6xl gap-7 px-4 pb-32 pt-6 sm:px-6 sm:pt-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,1fr)] lg:gap-10 lg:pb-16">
+        <div className="min-w-0">
           <p className="text-eyebrow text-muted-foreground">{formatDate(event.starts_at)}</p>
-          <h1 className="mt-2 font-display text-3xl font-700 leading-tight sm:text-4xl">
+          <h1 className="mt-2 break-words font-display text-2xl font-700 leading-tight sm:text-3xl lg:text-4xl">
             {event.title}
           </h1>
 
-          <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+          <dl className="mt-5 grid gap-3 sm:grid-cols-2">
             <InfoRow
               icon={<CalendarDays className="size-5" />}
               label="Termin"
@@ -145,10 +145,10 @@ function EventPage() {
             )}
           </dl>
 
-          <AddToCalendarButton event={event} className="mt-4" />
+          <AddToCalendarButton event={event} className="mt-4 w-full min-[420px]:w-auto" />
 
           {event.description && (
-            <div className="mt-8 whitespace-pre-line text-[0.975rem] leading-relaxed text-muted-foreground">
+            <div className="mt-6 whitespace-pre-line break-words text-sm leading-relaxed text-muted-foreground sm:mt-8 sm:text-[0.975rem]">
               {event.description}
             </div>
           )}
@@ -229,7 +229,7 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
   }
 
   return (
-    <div id="tickets" className="card-surface p-5 sm:p-6">
+    <div id="tickets" className="card-surface scroll-mt-24 p-4 sm:p-6">
       <h2 className="font-display text-lg font-700">{openFree ? "Teilnahme" : "Tickets"}</h2>
 
       {openFree && (
@@ -256,10 +256,10 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
               return (
                 <li
                   key={type.id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-border p-3.5"
+                   className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border p-3"
                 >
-                  <div>
-                    <p className="font-600">{type.name}</p>
+                   <div className="min-w-0">
+                     <p className="break-words font-600">{type.name}</p>
                     {type.description && (
                       <p className="text-xs text-muted-foreground">{type.description}</p>
                     )}
@@ -268,7 +268,7 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
                       {soldOut ? "ausverkauft" : `${type.remaining} verfügbar`}
                     </p>
                   </div>
-                  <div className="flex shrink-0 items-center gap-1.5">
+                   <div className="flex shrink-0 items-center gap-1">
                     <Button
                       type="button"
                       variant="outline"
@@ -327,7 +327,7 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-border pt-4">
+           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-border pt-4">
             <span className="text-sm text-muted-foreground">
               {count} {count === 1 ? "Ticket" : "Tickets"}
             </span>
@@ -409,9 +409,9 @@ function MobileBar({
   const openFree = detail.event.participation_mode === "open_free";
   const freeTicket = detail.event.participation_mode === "free_ticket";
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 p-3 backdrop-blur lg:hidden">
-      <div className="flex items-center justify-between gap-3">
-        <div>
+     <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-3 py-2.5 shadow-bar backdrop-blur lg:hidden">
+       <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+         <div className="min-w-0">
           <p className="text-xs text-muted-foreground">
             {openFree ? "Offenes Treffen" : salesState === "sold_out" ? "Ausverkauft" : "Tickets"}
           </p>
@@ -420,7 +420,7 @@ function MobileBar({
           </p>
         </div>
         {!openFree && (
-          <Button asChild size="lg" disabled={salesState !== "open"}>
+           <Button asChild size="lg" className="max-w-[58vw]" disabled={salesState !== "open"}>
             <a href="#tickets">
               {salesState === "open"
                 ? freeTicket
@@ -447,11 +447,11 @@ function InfoRow({
   className?: string;
 }) {
   return (
-    <div className={`flex gap-3 rounded-xl border border-border bg-card p-4 ${className ?? ""}`}>
-      <span className="text-accent">{icon}</span>
-      <div>
+    <div className={`flex min-w-0 gap-3 rounded-xl border border-border bg-card p-3.5 sm:p-4 ${className ?? ""}`}>
+      <span className="shrink-0 text-accent">{icon}</span>
+      <div className="min-w-0">
         <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
-        <dd className="mt-0.5 font-500">{value}</dd>
+        <dd className="mt-0.5 break-words font-500">{value}</dd>
       </div>
     </div>
   );
