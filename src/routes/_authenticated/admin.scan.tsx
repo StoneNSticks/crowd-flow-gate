@@ -130,21 +130,21 @@ function ScanPage() {
   }, [phase]);
 
   return (
-    <div className="mx-auto max-w-md px-4 py-6 sm:py-10">
-      <div className="flex items-center justify-between">
-        <div>
+    <div className="mx-auto max-w-md px-3 py-4 min-[360px]:px-4 sm:py-8">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+        <div className="min-w-0">
           <p className="text-eyebrow text-muted-foreground">Einlasskontrolle</p>
-          <h1 className="font-display text-2xl font-700">Tickets scannen</h1>
+          <h1 className="font-display text-xl font-700 sm:text-2xl">Tickets scannen</h1>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setCameraOn((v) => !v)}>
+        <Button variant="outline" size="sm" className="px-2.5" onClick={() => setCameraOn((v) => !v)}>
           {cameraOn ? <CameraOff className="size-4" /> : <QrCode className="size-4" />}
           {cameraOn ? "Kamera aus" : "Kamera an"}
         </Button>
       </div>
 
       {cameraOn && (
-        <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-black">
-          <video ref={videoRef} className="aspect-square w-full object-cover" muted playsInline />
+        <div className="mt-4 overflow-hidden rounded-xl border border-border bg-ink sm:mt-5">
+          <video ref={videoRef} className="aspect-[4/3] w-full object-cover sm:aspect-square" muted playsInline />
         </div>
       )}
       {cameraError && (
@@ -154,7 +154,7 @@ function ScanPage() {
       )}
 
       <form
-        className="mt-5 flex gap-2"
+         className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2 sm:mt-5"
         onSubmit={(e) => {
           e.preventDefault();
           void handleCode(manual);
@@ -216,7 +216,7 @@ function ResultCard({
         : "border-destructive/50 bg-destructive/10";
 
   return (
-    <div className={`mt-6 rounded-2xl border p-5 ${tone}`}>
+     <div className={`mt-5 rounded-xl border p-4 sm:mt-6 sm:p-5 ${tone}`}>
       <div className="flex items-center gap-2">
         {kind === "valid" || kind === "redeemed" ? (
           <CheckCircle2 className="size-6 text-success" />
@@ -239,7 +239,7 @@ function ResultCard({
       </div>
 
       {result.result !== "not_found" ? (
-        <dl className="mt-4 space-y-1.5 text-sm">
+       <dl className="mt-4 space-y-2 text-sm">
           <Row label="Name" value={result.holder_name} />
           <Row label="Kategorie" value={result.ticket_type} />
           <Row label="Event" value={result.event_title} />
@@ -271,9 +271,9 @@ function ResultCard({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-4">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="text-right font-500">{value}</dd>
+     <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-3">
+       <dt className="min-w-0 text-muted-foreground">{label}</dt>
+       <dd className="min-w-0 break-words text-right font-500">{value}</dd>
     </div>
   );
 }

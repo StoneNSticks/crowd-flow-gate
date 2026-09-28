@@ -48,17 +48,19 @@ function AdminLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-muted/40">
       <header className="sticky top-0 z-40 border-b border-white/10 surface-ink">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link to="/admin" className="font-display text-sm font-700 tracking-tight">
-            {BRAND_SHORT} Verwaltung
+        <div className="mx-auto grid min-h-16 max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-2 min-[360px]:px-4 sm:px-6">
+          <Link to="/admin" className="min-w-0 truncate font-display text-sm font-700">
+            <span className="min-[390px]:hidden">{BRAND_SHORT}</span>
+            <span className="hidden min-[390px]:inline">{BRAND_SHORT} Verwaltung</span>
           </Link>
-          <nav className="flex items-center gap-1 text-sm">
+          <nav className="flex shrink-0 items-center gap-0.5 text-sm" aria-label="Verwaltung">
             {data?.isAdmin && (
               <Link
                 to="/admin"
                 activeOptions={{ exact: true }}
                 activeProps={{ className: "bg-white/10 text-ink-foreground" }}
-                className="flex items-center gap-1.5 rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink-foreground"
+                aria-label="Events"
+                className="flex min-h-11 items-center gap-1.5 rounded-md px-3 text-ink-muted transition-colors hover:text-ink-foreground"
               >
                 <CalendarDays className="size-4" />
                 <span className="hidden sm:inline">Events</span>
@@ -67,7 +69,8 @@ function AdminLayout() {
             <Link
               to="/admin/scan"
               activeProps={{ className: "bg-white/10 text-ink-foreground" }}
-              className="flex items-center gap-1.5 rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink-foreground"
+              aria-label="Scannen"
+              className="flex min-h-11 items-center gap-1.5 rounded-md px-3 text-ink-muted transition-colors hover:text-ink-foreground"
             >
               <QrCode className="size-4" />
               <span className="hidden sm:inline">Scannen</span>
@@ -76,6 +79,7 @@ function AdminLayout() {
               variant="ghost"
               size="sm"
               onClick={signOut}
+              aria-label="Abmelden"
               className="text-ink-muted hover:bg-white/10 hover:text-ink-foreground"
             >
               <LogOut className="size-4" />
