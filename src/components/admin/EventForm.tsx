@@ -164,7 +164,7 @@ export function EventForm({
 
   return (
     <form
-      className="space-y-8"
+      className="space-y-7 sm:space-y-8"
       onSubmit={(e) => {
         e.preventDefault();
         if (!values.title.trim() || !values.starts_at) {
@@ -256,7 +256,7 @@ export function EventForm({
           {withTicketTypes && (
             <div className="sm:col-span-2">
               <Label>Art der Teilnahme</Label>
-              <div className="mt-2 grid gap-2 sm:grid-cols-3">
+               <div className="mt-2 grid gap-2 md:grid-cols-3">
                 <ModeButton
                   active={values.participation_mode === "paid"}
                   icon={<Ticket className="size-5" />}
@@ -392,7 +392,7 @@ export function EventForm({
           </Field>
 
           <Field label="Coverbild" className="sm:col-span-2">
-            <div className="flex flex-wrap items-center gap-3">
+             <div className="grid gap-3 min-[460px]:grid-cols-[auto_minmax(0,1fr)_auto] min-[460px]:items-center">
               <Button type="button" variant="outline" disabled={uploading} asChild>
                 <label className="cursor-pointer">
                   {uploading ? (
@@ -417,7 +417,7 @@ export function EventForm({
                   <img
                     src={values.cover_image_url}
                     alt="Coverbild-Vorschau"
-                    className="h-16 w-28 rounded-lg object-cover"
+                    className="h-20 w-full rounded-lg object-cover min-[460px]:h-16 min-[460px]:w-28"
                   />
                   <Button
                     type="button"
@@ -452,10 +452,10 @@ export function EventForm({
               return (
                 <div
                   key={row.key}
-                  className="rounded-xl border border-border bg-muted/20 p-4"
+                   className="rounded-xl border border-border bg-muted/20 p-3.5 sm:p-4"
                 >
-                  <div className="grid gap-3 sm:grid-cols-[2fr_1fr_1fr_auto] sm:items-end">
-                    <div className="space-y-1.5">
+                   <div className="grid grid-cols-2 gap-3 md:grid-cols-[2fr_1fr_1fr_auto] md:items-end">
+                     <div className="col-span-2 space-y-1.5 md:col-span-1">
                       <Label>Name</Label>
                       <Input
                         value={row.name}
@@ -481,7 +481,7 @@ export function EventForm({
                         placeholder="100"
                       />
                     </div>
-                    <div className="flex items-center gap-1">
+                     <div className="col-span-2 flex items-center justify-end gap-1 md:col-span-1">
                       <Button
                         type="button"
                         variant="ghost"
@@ -547,13 +547,14 @@ export function EventForm({
             })}
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" onClick={() => setRows((r) => [...r, newRow()])}>
+           <div className="grid gap-2 min-[480px]:flex min-[480px]:flex-wrap">
+             <Button type="button" variant="outline" className="w-full min-[480px]:w-auto" onClick={() => setRows((r) => [...r, newRow()])}>
               <Plus className="size-4" /> Ticketart hinzufügen
             </Button>
             {values.participation_mode === "paid" && <Button
               type="button"
-              variant="ghost"
+               variant="ghost"
+               className="w-full min-[480px]:w-auto"
               onClick={() =>
                 setRows([
                   newRow({ name: "Early Bird", price: "15,00", quantity: "50" }),
@@ -588,8 +589,8 @@ export function EventForm({
         </section>
       )}
 
-      <div className="flex items-center justify-between rounded-xl border border-border bg-muted/40 p-4">
-        <div>
+       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-muted/40 p-4">
+         <div className="min-w-0">
           <p className="text-sm font-600">Event öffentlich sichtbar</p>
           <p className="text-xs text-muted-foreground">
             Inaktive Events sind auf der Website nicht erreichbar.
@@ -598,7 +599,7 @@ export function EventForm({
         <Switch checked={values.is_active} onCheckedChange={(v) => set("is_active", v)} />
       </div>
 
-      <Button type="submit" size="lg" disabled={busy}>
+       <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={busy}>
         {busy && <Loader2 className="size-4 animate-spin" />}
         Speichern
       </Button>
@@ -652,11 +653,11 @@ function ModeButton({
     <Button
       type="button"
       variant={active ? "default" : "outline"}
-      className="h-auto min-h-24 justify-start whitespace-normal p-4 text-left"
+       className="h-auto min-h-20 justify-start whitespace-normal p-3 text-left md:min-h-24 md:p-4"
       onClick={onClick}
     >
       <span className="shrink-0 self-start">{icon}</span>
-      <span>
+       <span className="min-w-0">
         <span className="block font-600">{title}</span>
         <span className={`mt-1 block text-xs ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
           {text}

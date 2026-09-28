@@ -52,19 +52,19 @@ function NewEventPage() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
       <Link
         to="/admin"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-4" /> Zurück zur Übersicht
       </Link>
-      <h1 className="mt-4 font-display text-3xl font-700">Neues Event</h1>
+      <h1 className="mt-4 font-display text-2xl font-700 sm:text-3xl">Neues Event</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Wähle zwischen Ticketverkauf, kostenlosem QR-Ticket und einem offenen Treffen ohne
         Anmeldung.
       </p>
-      <div className="mt-8 rounded-2xl border border-border bg-card p-5 sm:p-7">
+      <div className="mt-6 rounded-xl border border-border bg-card p-4 sm:mt-8 sm:p-7">
         <EventForm
           initial={emptyEvent()}
           withTicketTypes

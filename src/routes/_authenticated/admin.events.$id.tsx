@@ -107,7 +107,7 @@ function EventDetailPage() {
   const { event, ticketTypes, tickets, stats } = data as any;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
       <Link
         to="/admin"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -115,14 +115,14 @@ function EventDetailPage() {
         <ArrowLeft className="size-4" /> Zurück zur Übersicht
       </Link>
 
-      <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
-        <div>
+       <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+         <div className="min-w-0">
           <p className="text-eyebrow text-muted-foreground">
             {formatDateTimeShort(event.starts_at)}
           </p>
-          <h1 className="font-display text-3xl font-700">{event.title}</h1>
+           <h1 className="break-words font-display text-2xl font-700 sm:text-3xl">{event.title}</h1>
         </div>
-        <Button variant="outline" asChild>
+         <Button variant="outline" className="w-full sm:w-auto" asChild>
           <a href={`/event/${event.slug}`} target="_blank" rel="noreferrer">
             <ExternalLink className="size-4" />
             Öffentliche Seite
@@ -130,19 +130,21 @@ function EventDetailPage() {
         </Button>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-4">
+       <div className="mt-5 grid grid-cols-2 gap-2.5 lg:grid-cols-4 lg:gap-3">
         <Stat label="Verkauft" value={`${stats.sold}${stats.capacity ? ` / ${stats.capacity}` : ""}`} />
         <Stat label="Eingelöst" value={`${stats.redeemed}`} />
         <Stat label="Offen" value={`${stats.open}`} />
         <Stat label="Umsatz" value={formatMoney(stats.revenueCents)} />
       </div>
 
-      <Tabs defaultValue="tickets" className="mt-8">
-        <TabsList>
+       <Tabs defaultValue="tickets" className="mt-7 min-w-0">
+         <div className="overflow-x-auto pb-1">
+         <TabsList className="min-w-max">
           <TabsTrigger value="tickets">Tickets ({tickets.length})</TabsTrigger>
           <TabsTrigger value="types">Kategorien ({ticketTypes.length})</TabsTrigger>
           <TabsTrigger value="settings">Einstellungen</TabsTrigger>
-        </TabsList>
+         </TabsList>
+         </div>
 
         <TabsContent value="tickets" className="mt-5">
           <TicketList eventId={id} eventSlug={event.slug} tickets={tickets} onChanged={refresh} />
@@ -153,14 +155,14 @@ function EventDetailPage() {
         </TabsContent>
 
         <TabsContent value="settings" className="mt-5">
-          <div className="rounded-2xl border border-border bg-card p-5 sm:p-7">
+           <div className="rounded-xl border border-border bg-card p-4 sm:p-7">
             <EventForm
               initial={toFormValues(event)}
               busy={saveMutation.isPending}
               onSubmit={(values) => saveMutation.mutate(values)}
             />
           </div>
-          <div className="mt-6 rounded-2xl border border-destructive/40 bg-destructive/5 p-5">
+           <div className="mt-6 rounded-xl border border-destructive/40 bg-destructive/5 p-4 sm:p-5">
             <h2 className="font-600">Event löschen</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Löscht das Event mit allen Kategorien und Tickets. Besser: Event auf „inaktiv“ setzen.
@@ -249,14 +251,14 @@ function TicketList({
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
+       <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Suche nach Name, E-Mail, Code oder Kategorie"
-          className="max-w-sm"
+           className="max-w-sm"
         />
-        <Button variant="outline" disabled={tickets.length === 0} onClick={exportCsv}>
+         <Button className="w-full sm:w-auto" variant="outline" disabled={tickets.length === 0} onClick={exportCsv}>
           <Download className="size-4" />
           Teilnehmer als CSV
         </Button>
@@ -266,8 +268,33 @@ function TicketList({
           {tickets.length === 0 ? "Noch keine Tickets verkauft." : "Keine Treffer."}
         </p>
       ) : (
-        <div className="mt-4 overflow-x-auto rounded-2xl border border-border bg-card">
-          <table className="w-full text-sm">
+         <>
+         <div className="mt-4 space-y-3 sm:hidden">
+           {filtered.map((t) => (
+             <article key={t.id} className="rounded-xl border border-border bg-card p-4">
+               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                 <div className="min-w-0">
+                   <p className="break-words font-600">{t.holder_name}</p>
+                   <p className="break-all text-xs text-muted-foreground">{t.holder_email}</p>
+                 </div>
+                 <StatusBadge status={t.status} />
+               </div>
+               <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+                 <div><dt className="text-muted-foreground">Kategorie</dt><dd className="break-words font-500">{t.ticket_type_name ?? "Nicht angegeben"}</dd></div>
+                 <div><dt className="text-muted-foreground">Gekauft</dt><dd className="font-500">{formatDateTimeShort(t.created_at)}</dd></div>
+                 <div className="col-span-2"><dt className="text-muted-foreground">Code</dt><dd className="break-all font-mono font-500">{t.code}</dd></div>
+                 {t.redeemed_at && <div className="col-span-2"><dt className="text-muted-foreground">Eingelöst</dt><dd className="font-500">{formatDateTimeShort(t.redeemed_at)}</dd></div>}
+               </dl>
+               {t.status !== "cancelled" && (
+                 <Button variant="outline" className="mt-3 w-full" disabled={mutation.isPending} onClick={() => {
+                   if (confirm(`Ticket von ${t.holder_name} stornieren?`)) mutation.mutate(t.id);
+                 }}>Stornieren</Button>
+               )}
+             </article>
+           ))}
+         </div>
+         <div className="mt-4 hidden overflow-x-auto rounded-xl border border-border bg-card sm:block">
+           <table className="min-w-[760px] w-full text-sm">
             <thead className="border-b border-border text-left text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 font-500">Käufer</th>
@@ -318,8 +345,9 @@ function TicketList({
             </tbody>
           </table>
         </div>
+         </>
       )}
-      <p className="mt-3 text-xs text-muted-foreground">
+         <p className="mt-3 break-words text-xs text-muted-foreground">
         Tickets sind nicht erstattbar. Ein storniertes Ticket wird beim Scannen sofort abgewiesen.
         Event-ID: {eventId.slice(0, 8)}
       </p>
@@ -414,7 +442,7 @@ function TicketTypes({
       ))}
 
       <form
-        className="rounded-2xl border border-dashed border-border bg-card p-5"
+         className="rounded-xl border border-dashed border-border bg-card p-4 sm:p-5"
         onSubmit={(e) => {
           e.preventDefault();
           const price = Number(draft.price.replace(",", "."));
@@ -439,8 +467,8 @@ function TicketTypes({
         }}
       >
         <h3 className="font-600">Ticketart hinzufügen</h3>
-        <div className="mt-4 grid gap-3 sm:grid-cols-[2fr_1fr_1fr_auto] sm:items-end">
-          <div className="space-y-1.5">
+         <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-[2fr_1fr_1fr_auto] md:items-end">
+           <div className="col-span-2 space-y-1.5 md:col-span-1">
             <Label>Name</Label>
             <Input
               value={draft.name}
@@ -466,7 +494,7 @@ function TicketTypes({
               inputMode="numeric"
             />
           </div>
-          <Button type="submit" disabled={create.isPending}>
+           <Button type="submit" className="col-span-2 w-full md:col-span-1 md:w-auto" disabled={create.isPending}>
             {create.isPending ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
@@ -544,9 +572,9 @@ function TicketTypeRow({
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-muted-foreground">
+     <div className="rounded-xl border border-border bg-card p-4">
+       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+         <p className="min-w-0 break-words text-sm text-muted-foreground">
           Verkauft <span className="font-600 text-foreground">{type.sold ?? 0}</span> von{" "}
           {type.quantity} · verbleibend {type.remaining ?? type.quantity} · Umsatz{" "}
           {formatMoney(type.revenueCents ?? 0)}
@@ -554,7 +582,7 @@ function TicketTypeRow({
             <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[0.7rem]">inaktiv</span>
           )}
         </p>
-        <div className="flex items-center gap-1">
+         <div className="flex flex-wrap items-center gap-1">
           <Button
             variant="ghost"
             size="icon"
@@ -582,8 +610,8 @@ function TicketTypeRow({
         </div>
       </div>
 
-      <div className="mt-3 grid gap-3 sm:grid-cols-[2fr_1fr_1fr_auto] sm:items-end">
-        <div className="space-y-1.5">
+       <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-[2fr_1fr_1fr_auto] md:items-end">
+         <div className="col-span-2 space-y-1.5 md:col-span-1">
           <Label>Name</Label>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </div>
@@ -599,7 +627,7 @@ function TicketTypeRow({
             onChange={(e) => setQuantity(e.target.value)}
           />
         </div>
-        <Button disabled={!dirty || busy} onClick={() => submit(type.is_active)}>
+         <Button className="col-span-2 w-full md:col-span-1 md:w-auto" disabled={!dirty || busy} onClick={() => submit(type.is_active)}>
           {busy && <Loader2 className="size-4 animate-spin" />}
           Speichern
         </Button>
@@ -630,7 +658,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
+     <div className="min-w-0 rounded-xl border border-border bg-card p-3.5 sm:p-4">
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className="mt-1 font-display text-xl font-700">{value}</p>
     </div>

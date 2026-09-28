@@ -56,9 +56,9 @@ function TicketPage() {
 
   return (
     <PublicLayout>
-      <div className="mx-auto max-w-lg px-4 py-10 sm:py-14">
+      <div className="mx-auto max-w-lg px-3 py-7 min-[360px]:px-4 sm:py-12">
         <p className="text-eyebrow text-muted-foreground">Dein Ticket</p>
-        <h1 className="mt-2 font-display text-2xl font-700">{ticket.event.title}</h1>
+        <h1 className="mt-2 break-words font-display text-xl font-700 sm:text-2xl">{ticket.event.title}</h1>
         <div className="mt-6">
           <TicketCard ticket={ticket} />
         </div>
@@ -67,7 +67,7 @@ function TicketPage() {
           gescannt.
         </p>
         <div className="mt-4 flex justify-center">
-          <Button variant="outline" asChild>
+          <Button variant="outline" className="w-full min-[420px]:w-auto" asChild>
             <Link to="/event/$slug" params={{ slug: ticket.event.slug }}>
               Zur Veranstaltung
             </Link>
@@ -80,7 +80,7 @@ function TicketPage() {
 
 function Message({ title, text }: { title: string; text: string }) {
   return (
-    <div className="mx-auto max-w-lg px-4 py-24 text-center">
+    <div className="mx-auto max-w-lg px-4 py-16 text-center sm:py-24">
       <h1 className="font-display text-2xl font-700">{title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{text}</p>
       <Button variant="outline" className="mt-6" asChild>

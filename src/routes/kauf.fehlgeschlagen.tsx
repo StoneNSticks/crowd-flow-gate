@@ -29,11 +29,11 @@ function FailurePage() {
 
   return (
     <PublicLayout>
-      <div className="mx-auto max-w-lg px-4 py-20 text-center">
+      <div className="mx-auto max-w-lg px-4 py-14 text-center sm:py-20">
         <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
           <XCircle className="size-6" />
         </span>
-        <h1 className="mt-5 font-display text-2xl font-700">Zahlung nicht abgeschlossen</h1>
+        <h1 className="mt-5 font-display text-xl font-700 sm:text-2xl">Zahlung nicht abgeschlossen</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Es wurde kein Betrag abgebucht und es wurden keine Tickets ausgestellt. Du kannst den Kauf
           jederzeit erneut starten.

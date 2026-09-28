@@ -43,13 +43,13 @@ function AdminDashboard() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
+        <div className="min-w-0">
           <p className="text-eyebrow text-muted-foreground">Übersicht</p>
-          <h1 className="font-display text-3xl font-700">Events</h1>
+          <h1 className="font-display text-2xl font-700 sm:text-3xl">Events</h1>
         </div>
-        <Button asChild>
+        <Button className="px-3 sm:px-4" asChild>
           <Link to="/admin/events/new">
             <CalendarPlus className="size-4" />
             Neues Event
@@ -57,7 +57,7 @@ function AdminDashboard() {
         </Button>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+      <div className="mt-5 grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-3">
         <Stat icon={<Ticket className="size-4" />} label="Verkaufte Tickets" value={String(totals.sold)} />
         <Stat icon={<Users className="size-4" />} label="Eingelöst" value={String(totals.redeemed)} />
         <Stat
@@ -98,12 +98,12 @@ function AdminDashboard() {
               key={event.id}
               to="/admin/events/$id"
               params={{ id: event.id }}
-              className="block rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-md"
+             className="block min-w-0 rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-md sm:p-5"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="font-display text-lg font-600">{event.title}</h2>
+               <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+                 <div className="min-w-0">
+                   <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                     <h2 className="break-words font-display text-base font-600 sm:text-lg">{event.title}</h2>
                     <span
                       className={`rounded-full px-2 py-0.5 text-[0.7rem] font-600 ${
                         event.is_active
@@ -114,12 +114,12 @@ function AdminDashboard() {
                       {event.is_active ? "Aktiv" : "Inaktiv"}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                   <p className="mt-1 break-all text-xs text-muted-foreground sm:text-sm">
                     {formatDateTimeShort(event.starts_at)}
                     {event.venue_name ? `, ${event.venue_name}` : ""} | /event/{event.slug}
                   </p>
                 </div>
-                <dl className="flex gap-6 text-sm">
+                 <dl className="grid grid-cols-3 gap-3 text-sm lg:min-w-72 lg:gap-6">
                   <div>
                     <dt className="text-muted-foreground">
                       {event.participation_mode === "open_free" ? "Teilnahme" : "Verkauft"}
@@ -158,12 +158,12 @@ function Stat({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="min-w-0 rounded-xl border border-border bg-card p-3.5 sm:p-5">
       <div className="flex items-center gap-2 text-muted-foreground">
         {icon}
         <span className="text-sm">{label}</span>
       </div>
-      <p className="mt-2 font-display text-2xl font-700">{value}</p>
+       <p className="mt-2 break-words font-display text-xl font-700 sm:text-2xl">{value}</p>
     </div>
   );
 }
