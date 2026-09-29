@@ -2,14 +2,25 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { TicketCard } from "@/components/ticket/TicketCard";
-import { getTicketById } from "@/lib/tickets.functions";
+import { getTicketById, type PublicTicket } from "@/lib/tickets.functions";
+import { loadTicketOffline, saveTicketOffline } from "@/lib/offline-tickets";
 import { BRAND_NAME } from "@/lib/brand";
 import { Button } from "@/components/ui/button";
 
 const ticketQuery = (id: string) =>
   queryOptions({
     queryKey: ["ticket", id],
-    queryFn: () => getTicketById({ data: { id } }),
+    queryFn: async (): Promise<{ ticket: PublicTicket | null; fromCache: boolean }> => {
+      try {
+        const ticket = await getTicketById({ data: { id } });
+        saveTicketOffline(ticket);
+        return { ticket, fromCache: false };
+      } catch (error) {
+        const cached = loadTicketOffline(id);
+        if (cached) return { ticket: cached, fromCache: true };
+        throw error;
+      }
+    },
   });
 
 export const Route = createFileRoute("/ticket/$id")({
@@ -41,7 +52,8 @@ export const Route = createFileRoute("/ticket/$id")({
 
 function TicketPage() {
   const { id } = Route.useParams();
-  const { data: ticket } = useSuspenseQuery(ticketQuery(id));
+  const { data } = useSuspenseQuery(ticketQuery(id));
+  const ticket = data.ticket;
 
   if (!ticket) {
     return (
@@ -53,6 +65,7 @@ function TicketPage() {
       </PublicLayout>
     );
   }
+
 
   return (
     <PublicLayout>
