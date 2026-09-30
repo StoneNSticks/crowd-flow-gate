@@ -1,13 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useEffect } from "react";
 import { z } from "zod";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { getTicketsBySession } from "@/lib/tickets.functions";
+import { saveTicketsOffline } from "@/lib/offline-tickets";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { TicketCard } from "@/components/ticket/TicketCard";
 import { Button } from "@/components/ui/button";
 import { BRAND_NAME } from "@/lib/brand";
+
 
 export const Route = createFileRoute("/kauf/erfolg")({
   validateSearch: z.object({ session: z.string().optional() }),
@@ -39,6 +42,13 @@ function SuccessPage() {
     refetchInterval: (query) => (query.state.data?.status === "paid" ? false : 2500),
   });
 
+  // Keep a local copy so the QR code still opens at the door without internet.
+  useEffect(() => {
+    saveTicketsOffline(data?.tickets);
+  }, [data?.tickets]);
+
+
+
   if (!session) {
     return (
       <PublicLayout>
@@ -69,7 +79,9 @@ function SuccessPage() {
           {tickets.length > 1 ? "Deine Tickets" : "Dein Ticket"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Dein Ticket ist bereit. Am Eingang wird nur der QR-Code gescannt.
+          Dein Ticket ist bereit und auf diesem Gerät gespeichert, auch ohne Internet. Am Eingang
+          wird nur der QR-Code gescannt.
+
         </p>
 
         {(isPending || data?.status !== "paid") && tickets.length === 0 && (

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarDays, Download, Loader2, MapPin } from "lucide-react";
+import { CalendarDays, Download, Loader2, MapPin, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 import { QrCode } from "@/components/QrCode";
 import { AddToCalendarButton } from "@/components/AddToCalendarButton";
@@ -8,7 +8,13 @@ import type { PublicTicket } from "@/lib/tickets.functions";
 import { formatDateTime, formatPrice } from "@/lib/format";
 import { downloadTicketPdf } from "@/lib/ticket-pdf";
 
-export function TicketCard({ ticket }: { ticket: PublicTicket }) {
+export function TicketCard({
+  ticket,
+  fromCache = false,
+}: {
+  ticket: PublicTicket;
+  fromCache?: boolean;
+}) {
   const [creating, setCreating] = useState(false);
 
   async function download() {
@@ -42,12 +48,19 @@ export function TicketCard({ ticket }: { ticket: PublicTicket }) {
         <span className={`rounded-full px-3 py-1 text-xs font-600 ${state.className}`}>
           {state.label}
         </span>
+        {fromCache && (
+          <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-500 text-muted-foreground">
+            <WifiOff className="size-3.5" />
+            Offline angezeigt
+          </span>
+        )}
         <div className="mt-5 max-w-full overflow-hidden rounded-md">
           <QrCode value={ticket.code} size={224} />
         </div>
         <p className="mt-4 break-all text-center font-mono text-xs text-muted-foreground">
           {ticket.code}
         </p>
+
         <Button
           type="button"
           variant="outline"

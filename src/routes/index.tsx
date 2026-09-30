@@ -34,7 +34,10 @@ export const Route = createFileRoute("/")({
     <PublicLayout>
       <div className="mx-auto max-w-lg px-4 py-24 text-center">
         <h1 className="font-display text-2xl font-700">Events konnten nicht geladen werden</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {error instanceof Error ? error.message : "Unbekannter Fehler"}
+        </p>
+
       </div>
     </PublicLayout>
   ),
