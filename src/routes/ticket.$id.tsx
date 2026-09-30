@@ -73,12 +73,13 @@ function TicketPage() {
         <p className="text-eyebrow text-muted-foreground">Dein Ticket</p>
         <h1 className="mt-2 break-words font-display text-xl font-700 sm:text-2xl">{ticket.event.title}</h1>
         <div className="mt-6">
-          <TicketCard ticket={ticket} />
+          <TicketCard ticket={ticket} fromCache={data.fromCache} />
         </div>
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Speichere diesen Link oder mach einen Screenshot. Am Eingang wird nur der QR-Code
-          gescannt.
+          Dieses Ticket ist auf diesem Gerät gespeichert und wird auch ohne Internet angezeigt. Am
+          Eingang wird nur der QR-Code gescannt.
         </p>
+
         <div className="mt-4 flex justify-center">
           <Button variant="outline" className="w-full min-[420px]:w-auto" asChild>
             <Link to="/event/$slug" params={{ slug: ticket.event.slug }}>
