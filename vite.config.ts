@@ -22,14 +22,15 @@ export default defineConfig({
       // The manifest is a static file in public/ so it is available in dev too.
       manifest: false,
       devOptions: { enabled: false },
+      outDir: "dist/client",
       workbox: {
-        globDirectory: ".output/public",
-        globPatterns: ["**/*.{js,css,woff,woff2}"],
-        navigateFallback: "/",
+        globDirectory: "dist/client",
+        globPatterns: ["assets/**/*.{js,css,woff,woff2}", "manifest.webmanifest", "icon-*.png"],
         navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
+
         runtimeCaching: [
           {
             urlPattern: ({ request }) => request.mode === "navigate",
