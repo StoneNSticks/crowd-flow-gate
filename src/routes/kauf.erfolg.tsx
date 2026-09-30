@@ -79,7 +79,9 @@ function SuccessPage() {
           {tickets.length > 1 ? "Deine Tickets" : "Dein Ticket"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Dein Ticket ist bereit. Am Eingang wird nur der QR-Code gescannt.
+          Dein Ticket ist bereit und auf diesem Gerät gespeichert, auch ohne Internet. Am Eingang
+          wird nur der QR-Code gescannt.
+
         </p>
 
         {(isPending || data?.status !== "paid") && tickets.length === 0 && (
