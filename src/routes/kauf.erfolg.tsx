@@ -1,13 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useEffect } from "react";
 import { z } from "zod";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { getTicketsBySession } from "@/lib/tickets.functions";
+import { saveTicketsOffline } from "@/lib/offline-tickets";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { TicketCard } from "@/components/ticket/TicketCard";
 import { Button } from "@/components/ui/button";
 import { BRAND_NAME } from "@/lib/brand";
+
 
 export const Route = createFileRoute("/kauf/erfolg")({
   validateSearch: z.object({ session: z.string().optional() }),
