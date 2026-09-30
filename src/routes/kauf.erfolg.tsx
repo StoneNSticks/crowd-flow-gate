@@ -42,6 +42,13 @@ function SuccessPage() {
     refetchInterval: (query) => (query.state.data?.status === "paid" ? false : 2500),
   });
 
+  // Keep a local copy so the QR code still opens at the door without internet.
+  useEffect(() => {
+    saveTicketsOffline(data?.tickets);
+  }, [data?.tickets]);
+
+
+
   if (!session) {
     return (
       <PublicLayout>
