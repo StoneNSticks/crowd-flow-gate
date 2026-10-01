@@ -36,6 +36,13 @@
       "when": 1790819262921,
       "tag": "0004_add_super_admin_role",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790819274320,
+      "tag": "0005_super_admin_role_policies",
+      "breakpoints": true
     }
   ]
 }
