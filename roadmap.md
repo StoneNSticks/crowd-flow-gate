@@ -8,3 +8,8 @@
 - [x] Manifest, App-Symbole und Startbildschirm-Unterstützung
 - [x] Offline-Anzeige gekaufter Tickets (lokale Kopie + Offline-Hinweis)
 - [x] Service Worker nur in der veröffentlichten App aktiv
+
+## Benutzer und Rechte
+- Super-Admin-Rolle eingeführt; alex.crasher007@gmail.com ist Super Admin.
+- Nur Super Admins dürfen Rollen sehen und vergeben (Datenbankregel + Serverprüfung).
+- Seite /admin/users: Übersicht aller Konten mit Status (Super Admin, Admin, Scanner, keine Freigabe), Suche und Rollenauswahl.
