@@ -5,17 +5,20 @@ import { z } from "zod";
 export interface RoleInfo {
   isAdmin: boolean;
   isScanner: boolean;
+  isSuperAdmin: boolean;
   email: string | null;
 }
 
 async function roles(context: { supabase: any; userId: string; claims: any }): Promise<RoleInfo> {
-  const [{ data: isAdmin }, { data: isScanner }] = await Promise.all([
+  const [{ data: isAdmin }, { data: isScanner }, { data: isSuperAdmin }] = await Promise.all([
     context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
     context.supabase.rpc("has_role", { _user_id: context.userId, _role: "scanner" }),
+    context.supabase.rpc("has_role", { _user_id: context.userId, _role: "super_admin" }),
   ]);
   return {
-    isAdmin: Boolean(isAdmin),
+    isAdmin: Boolean(isAdmin) || Boolean(isSuperAdmin),
     isScanner: Boolean(isScanner),
+    isSuperAdmin: Boolean(isSuperAdmin),
     email: (context.claims?.email as string | undefined) ?? null,
   };
 }
@@ -23,6 +26,12 @@ async function roles(context: { supabase: any; userId: string; claims: any }): P
 async function assertAdmin(context: any) {
   const r = await roles(context);
   if (!r.isAdmin) throw new Error("Keine Berechtigung für diesen Bereich.");
+  return r;
+}
+
+async function assertSuperAdmin(context: any) {
+  const r = await roles(context);
+  if (!r.isSuperAdmin) throw new Error("Nur Super Admins dürfen Berechtigungen verwalten.");
   return r;
 }
 
@@ -35,6 +44,97 @@ async function assertScanner(context: any) {
 export const getMyRoles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<RoleInfo> => roles(context as any));
+
+/* ------------------------------ user management ---------------------------- */
+
+export type AccessLevel = "none" | "scanner" | "admin" | "super_admin";
+
+export interface ManagedUser {
+  id: string;
+  email: string;
+  created_at: string;
+  last_sign_in_at: string | null;
+  level: AccessLevel;
+  isSelf: boolean;
+}
+
+export const listManagedUsers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<ManagedUser[]> => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({
+      page: 1,
+      perPage: 200,
+    });
+    if (error) throw new Error(error.message);
+
+    const { data: roleRows, error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .select("user_id, role");
+    if (roleError) throw new Error(roleError.message);
+
+    const me = (context as any).userId as string;
+
+    return (list?.users ?? []).map((u) => {
+      const own = (roleRows ?? []).filter((r: any) => r.user_id === u.id).map((r: any) => r.role);
+      const level: AccessLevel = own.includes("super_admin")
+        ? "super_admin"
+        : own.includes("admin")
+          ? "admin"
+          : own.includes("scanner")
+            ? "scanner"
+            : "none";
+      return {
+        id: u.id,
+        email: u.email ?? "Unbekannt",
+        created_at: u.created_at,
+        last_sign_in_at: u.last_sign_in_at ?? null,
+        level,
+        isSelf: u.id === me,
+      };
+    }).sort((a, b) => a.email.localeCompare(b.email));
+  });
+
+const accessInput = z.object({
+  userId: z.string().uuid(),
+  level: z.enum(["none", "scanner", "admin"]),
+});
+
+export const setUserAccessLevel = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { userId: string; level: AccessLevel }) => accessInput.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context);
+    const me = (context as any).userId as string;
+    if (data.userId === me) throw new Error("Du kannst deine eigenen Rechte nicht ändern.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: existing } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.userId);
+    if ((existing ?? []).some((r: any) => r.role === "super_admin")) {
+      throw new Error("Die Rechte eines anderen Super Admins können hier nicht geändert werden.");
+    }
+
+    const { error: delError } = await supabaseAdmin
+      .from("user_roles")
+      .delete()
+      .eq("user_id", data.userId)
+      .in("role", ["admin", "scanner"]);
+    if (delError) throw new Error(delError.message);
+
+    if (data.level !== "none") {
+      const { error } = await supabaseAdmin
+        .from("user_roles")
+        .insert({ user_id: data.userId, role: data.level });
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
 
 /* ---------------------------------- events --------------------------------- */
 
