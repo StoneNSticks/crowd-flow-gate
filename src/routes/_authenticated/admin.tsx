@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarDays, LogOut, QrCode, Loader2 } from "lucide-react";
+import { CalendarDays, LogOut, QrCode, Loader2, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyRoles } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
@@ -78,6 +78,17 @@ function AdminLayout() {
               <QrCode className="size-4" />
               <span className="hidden sm:inline">Scannen</span>
             </Link>
+            {data?.isSuperAdmin && (
+              <Link
+                to="/admin/users"
+                activeProps={{ className: "bg-white/10 text-ink-foreground" }}
+                aria-label="Benutzer und Rechte"
+                className="flex min-h-11 items-center gap-1.5 rounded-md px-3 text-ink-muted transition-colors hover:text-ink-foreground"
+              >
+                <Users className="size-4" />
+                <span className="hidden sm:inline">Benutzer</span>
+              </Link>
+            )}
             <Button
               variant="ghost"
               size="sm"

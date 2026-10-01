@@ -310,6 +310,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       redeem_ticket: {
         Args: { _code: string; _scanner: string }
         Returns: Json
@@ -317,7 +318,7 @@ export type Database = {
       ticket_type_sold: { Args: { _ticket_type_id: string }; Returns: number }
     }
     Enums: {
-      app_role: "admin" | "scanner"
+      app_role: "admin" | "scanner" | "super_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -445,7 +446,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "scanner"],
+      app_role: ["admin", "scanner", "super_admin"],
     },
   },
 } as const
