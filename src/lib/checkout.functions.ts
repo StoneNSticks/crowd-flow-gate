@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { type StripeEnv, createStripeClient, getStripeErrorMessage } from "@/lib/stripe.server";
 
@@ -7,7 +8,8 @@ const checkoutInput = z.object({
   buyerName: z.string().trim().min(2).max(120),
   buyerEmail: z.string().trim().email().max(200),
   environment: z.enum(["sandbox", "live"]),
-  returnUrl: z.string().url().max(500),
+  // Ignored: the return destination is derived server-side.
+  returnUrl: z.string().max(500).optional(),
   items: z
     .array(
       z.object({
@@ -16,8 +18,18 @@ const checkoutInput = z.object({
       }),
     )
     .min(1)
-    .max(10),
+    .max(10)
+    .refine(
+      (items) => new Set(items.map((i) => i.ticketTypeId)).size === items.length,
+      "Jede Ticketkategorie darf nur einmal gewählt werden.",
+    ),
 });
+
+function trustedOrigin(): string {
+  const request = getRequest();
+  const url = new URL(request.url);
+  return url.origin;
+}
 
 export type CheckoutResult =
   | { clientSecret: string }
@@ -149,7 +161,7 @@ export const startCheckout = createServerFn({ method: "POST" })
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         ui_mode: "embedded_page",
-        return_url: data.returnUrl,
+        return_url: `${trustedOrigin()}/kauf/erfolg?session={CHECKOUT_SESSION_ID}`,
         customer_email: data.buyerEmail,
         line_items: lines.map((l) => ({
           quantity: l.quantity,

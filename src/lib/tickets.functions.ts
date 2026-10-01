@@ -25,12 +25,19 @@ export interface PublicTicket {
 const TICKET_SELECT =
   "id, code, holder_name, holder_email, status, created_at, redeemed_at, ticket_types(name, price_cents), events(title, slug, starts_at, ends_at, venue_name, address, cover_image_url)";
 
+/** Public responses never contain the full buyer email. */
+function maskEmail(email: string): string {
+  const [user, domain] = String(email ?? "").split("@");
+  if (!domain) return "";
+  return `${(user ?? "").slice(0, 1)}***@${domain}`;
+}
+
 function mapTicket(row: any): PublicTicket {
   return {
     id: row.id,
     code: row.code,
     holder_name: row.holder_name,
-    holder_email: row.holder_email,
+    holder_email: maskEmail(row.holder_email),
     status: row.status,
     created_at: row.created_at,
     redeemed_at: row.redeemed_at,
@@ -64,7 +71,15 @@ export const getTicketById = createServerFn({ method: "GET" })
 /** All tickets of one completed checkout session, used on the success page. */
 export const getTicketsBySession = createServerFn({ method: "GET" })
   .inputValidator((data: { sessionId: string }) =>
-    z.object({ sessionId: z.string().min(6).max(300) }).parse(data),
+    z
+      .object({
+        sessionId: z
+          .string()
+          .min(20)
+          .max(300)
+          .regex(/^(cs_(test|live)_[A-Za-z0-9]+|free_[0-9a-f-]{36})$/),
+      })
+      .parse(data),
   )
   .handler(
     async ({

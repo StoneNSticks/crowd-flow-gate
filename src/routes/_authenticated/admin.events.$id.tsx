@@ -225,7 +225,12 @@ function TicketList({
       redeemed: "Eingelöst",
       cancelled: "Storniert",
     };
-    const cell = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const cell = (v: unknown) => {
+      let s = String(v ?? "");
+      // Neutralize spreadsheet formula injection.
+      if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+      return `"${s.replace(/"/g, '""')}"`;
+    };
     const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString("de-DE") : "");
     const rows = [
       ["Name", "E-Mail", "Ticketart", "Einlassstatus", "Eingelöst am", "Gekauft am", "Ticketcode"],
