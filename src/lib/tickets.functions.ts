@@ -29,7 +29,7 @@ const TICKET_SELECT =
 function maskEmail(email: string): string {
   const [user, domain] = String(email ?? "").split("@");
   if (!domain) return "";
-  return `${user.slice(0, 1)}***@${domain}`;
+  return `${(user ?? "").slice(0, 1)}***@${domain}`;
 }
 
 function mapTicket(row: any): PublicTicket {
