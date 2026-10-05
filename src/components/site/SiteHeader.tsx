@@ -1,15 +1,17 @@
 import { Link } from "@tanstack/react-router";
-import { Ticket } from "lucide-react";
 import { BRAND_NAME } from "@/lib/brand";
+import gcLogo from "@/assets/gc-logo-mark.png.asset.json";
 
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 surface-ink">
       <div className="mx-auto grid min-h-16 max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-2 min-[360px]:px-4 sm:px-6">
         <Link to="/" className="flex min-w-0 items-center gap-2.5">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-            <Ticket className="size-5" />
-          </span>
+          <img
+            src={gcLogo.url}
+            alt={`${BRAND_NAME} Logo`}
+            className="size-9 shrink-0 rounded-lg object-cover"
+          />
           <span className="flex min-w-0 flex-col leading-none">
             <span className="truncate font-display text-sm font-700 sm:text-[0.95rem]">
               {BRAND_NAME}
