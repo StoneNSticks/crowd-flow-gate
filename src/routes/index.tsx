@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { CalendarDays, QrCode, ShieldCheck } from "lucide-react";
 import { listPublicEvents } from "@/lib/public-events.functions";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { EventCard } from "@/components/site/EventCard";
-import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
+import { BRAND_NAME } from "@/lib/brand";
 
 const eventsQuery = queryOptions({
   queryKey: ["public-events"],
@@ -95,24 +94,3 @@ function HomePage() {
   );
 }
 
-function Feature({
-  icon,
-  title,
-  text,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  text: string;
-}) {
-  return (
-    <li className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 rounded-xl border border-white/10 bg-white/5 p-3.5 min-[520px]:block sm:p-4">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
-        {icon}
-      </span>
-      <div className="min-w-0">
-        <h3 className="font-display text-sm font-600 min-[520px]:mt-3 sm:text-base">{title}</h3>
-        <p className="mt-1 text-xs leading-relaxed text-ink-muted sm:text-sm">{text}</p>
-      </div>
-    </li>
-  );
-}
