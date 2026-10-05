@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { CalendarDays, QrCode, ShieldCheck } from "lucide-react";
 import { listPublicEvents } from "@/lib/public-events.functions";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { EventCard } from "@/components/site/EventCard";
-import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
+import { BRAND_NAME } from "@/lib/brand";
 
 const eventsQuery = queryOptions({
   queryKey: ["public-events"],
@@ -53,28 +52,14 @@ function HomePage() {
     <PublicLayout>
       <section className="surface-ink">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
-          <p className="text-eyebrow text-accent">Veranstaltungen &amp; Tickets</p>
+          <p className="text-eyebrow text-accent">Studentische Initiative</p>
           <h1 className="mt-3 max-w-2xl font-display text-3xl font-700 leading-tight sm:text-4xl lg:text-5xl">
-            Tickets kaufen, Ticket aufs Handy, rein in die Veranstaltung.
+            Wir bringen Studierende zusammen.
           </h1>
-          <p className="mt-3 max-w-xl text-sm text-ink-muted sm:text-base lg:text-lg">{BRAND_TAGLINE}</p>
-          <ul className="mt-6 grid gap-2.5 min-[520px]:grid-cols-3 sm:mt-8 sm:gap-4">
-            <Feature
-              icon={<CalendarDays className="size-5" />}
-              title="Alle Termine"
-              text="Kommende Veranstaltungen mit Preisen und Restplätzen."
-            />
-            <Feature
-              icon={<QrCode className="size-5" />}
-              title="Ticket mit QR-Code"
-              text="Personalisiert, sofort nach der Zahlung verfügbar."
-            />
-            <Feature
-              icon={<ShieldCheck className="size-5" />}
-              title="Sicherer Einlass"
-              text="Jeder Code ist einmalig und nur einmal einlösbar."
-            />
-          </ul>
+          <p className="mt-3 max-w-xl text-sm text-ink-muted sm:text-base lg:text-lg">
+            Goethe Connected ist eine Initiative von Studierenden für Studierende. Wir organisieren Treffen, Partys und
+            Veranstaltungen, bei denen man neue Leute kennenlernt. Komm vorbei und sei dabei.
+          </p>
         </div>
       </section>
 
@@ -109,24 +94,3 @@ function HomePage() {
   );
 }
 
-function Feature({
-  icon,
-  title,
-  text,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  text: string;
-}) {
-  return (
-    <li className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 rounded-xl border border-white/10 bg-white/5 p-3.5 min-[520px]:block sm:p-4">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
-        {icon}
-      </span>
-      <div className="min-w-0">
-        <h3 className="font-display text-sm font-600 min-[520px]:mt-3 sm:text-base">{title}</h3>
-        <p className="mt-1 text-xs leading-relaxed text-ink-muted sm:text-sm">{text}</p>
-      </div>
-    </li>
-  );
-}
