@@ -22,6 +22,8 @@ const eventQuery = (slug: string) =>
     queryFn: () => getPublicEvent({ data: { slug } }),
   });
 
+const MAX_TICKETS_PER_ORDER = 3;
+
 export const Route = createFileRoute("/event/$slug")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(eventQuery(params.slug)),
   head: ({ loaderData }) => {
@@ -189,7 +191,9 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
 
   function change(id: string, delta: number, max: number) {
     setQuantities((q) => {
-      const next = Math.min(Math.max((q[id] ?? 0) + delta, 0), Math.min(max, 10));
+      const current = q[id] ?? 0;
+      const others = Object.values(q).reduce((a, b) => a + b, 0) - current;
+      const next = Math.min(Math.max(current + delta, 0), Math.min(max, MAX_TICKETS_PER_ORDER - others));
       return { ...q, [id]: next };
     });
   }
@@ -287,7 +291,7 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
                       type="button"
                       variant="outline"
                       size="icon"
-                      disabled={closed || soldOut || qty >= Math.min(type.remaining, 10)}
+                      disabled={closed || soldOut || qty >= type.remaining || count >= MAX_TICKETS_PER_ORDER}
                       onClick={() => change(type.id, 1, type.remaining)}
                       aria-label={`Ein ${type.name}-Ticket mehr`}
                     >

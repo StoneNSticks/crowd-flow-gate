@@ -22,15 +22,21 @@ function esc(v: string) {
 
 export function AddToCalendarButton({
   event,
+  ticket,
   className,
 }: {
   event: CalEvent;
+  ticket?: { id: string; code: string; typeName?: string | null };
   className?: string;
 }) {
   function download() {
     const start = event.starts_at;
     const end = event.ends_at ?? new Date(new Date(start).getTime() + 2 * 3600_000).toISOString();
     const url = `${window.location.origin}/event/${event.slug}`;
+    const ticketUrl = ticket ? `${window.location.origin}/ticket/${ticket.id}` : null;
+    const ticketInfo = ticket
+      ? `Dein Ticket${ticket.typeName ? ` (${ticket.typeName})` : ""}: ${ticketUrl}\nTicket-Code: ${ticket.code}`
+      : "";
     const location = [event.venue_name, event.address].filter(Boolean).join(", ");
     const lines = [
       "BEGIN:VCALENDAR",
@@ -39,14 +45,14 @@ export function AddToCalendarButton({
       "CALSCALE:GREGORIAN",
       "METHOD:PUBLISH",
       "BEGIN:VEVENT",
-      `UID:${event.slug}@goethe-connected`,
+      `UID:${ticket ? ticket.id : event.slug}@goethe-connected`,
       `DTSTAMP:${icsDate(new Date().toISOString())}`,
       `DTSTART:${icsDate(start)}`,
       `DTEND:${icsDate(end)}`,
       `SUMMARY:${esc(event.title)}`,
-      `DESCRIPTION:${esc([(event.description ?? "").slice(0, 800), url].filter(Boolean).join("\n\n"))}`,
+      `DESCRIPTION:${esc([ticketInfo, (event.description ?? "").slice(0, 800), url].filter(Boolean).join("\n\n"))}`,
       location ? `LOCATION:${esc(location)}` : "",
-      `URL:${url}`,
+      `URL:${ticketUrl ?? url}`,
       "END:VEVENT",
       "END:VCALENDAR",
     ].filter(Boolean);

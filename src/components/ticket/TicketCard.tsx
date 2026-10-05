@@ -75,7 +75,7 @@ export function TicketCard({
           )}
           Ticket als PDF herunterladen
         </Button>
-        <AddToCalendarButton event={ticket.event} className="mt-2 h-auto min-h-11 w-full whitespace-normal py-2 text-center" />
+        <AddToCalendarButton event={ticket.event} ticket={{ id: ticket.id, code: ticket.code, typeName: ticket.ticket_type_name }} className="mt-2 h-auto min-h-11 w-full whitespace-normal py-2 text-center" />
       </div>
 
       <dl className="space-y-3 border-t border-dashed border-border px-4 py-5 text-sm sm:px-5">

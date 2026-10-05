@@ -6,6 +6,7 @@ import { z } from "zod";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { getTicketsBySession } from "@/lib/tickets.functions";
 import { saveTicketsOffline } from "@/lib/offline-tickets";
+import { downloadTicketPdf } from "@/lib/ticket-pdf";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { TicketCard } from "@/components/ticket/TicketCard";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,23 @@ function SuccessPage() {
     saveTicketsOffline(data?.tickets);
   }, [data?.tickets]);
 
+  // Download each ticket PDF automatically once per device.
+  useEffect(() => {
+    const list = data?.tickets ?? [];
+    void (async () => {
+      for (const ticket of list) {
+        const key = `gc_pdf_downloaded_${ticket.id}`;
+        if (localStorage.getItem(key)) continue;
+        localStorage.setItem(key, "1");
+        try {
+          await downloadTicketPdf(ticket);
+        } catch {
+          localStorage.removeItem(key);
+        }
+      }
+    })();
+  }, [data?.tickets]);
+
 
 
   if (!session) {
@@ -79,7 +97,7 @@ function SuccessPage() {
           {tickets.length > 1 ? "Deine Tickets" : "Dein Ticket"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Dein Ticket ist bereit und auf diesem Gerät gespeichert, auch ohne Internet. Am Eingang
+          Dein Ticket wurde automatisch als PDF heruntergeladen und ist auf diesem Gerät gespeichert, auch ohne Internet. Am Eingang
           wird nur der QR-Code gescannt.
 
         </p>

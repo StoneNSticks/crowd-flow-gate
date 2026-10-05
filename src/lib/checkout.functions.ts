@@ -22,6 +22,10 @@ const checkoutInput = z.object({
     .refine(
       (items) => new Set(items.map((i) => i.ticketTypeId)).size === items.length,
       "Jede Ticketkategorie darf nur einmal gewählt werden.",
+    )
+    .refine(
+      (items) => items.reduce((sum, i) => sum + i.quantity, 0) <= 3,
+      "Pro Bestellung sind maximal 3 Tickets möglich.",
     ),
 });
 
