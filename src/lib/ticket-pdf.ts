@@ -42,7 +42,13 @@ export async function downloadTicketPdf(ticket: PublicTicket) {
   doc.setFontSize(11);
   doc.setTextColor(90, 95, 115);
   doc.text(ticket.ticket_type_name ?? "Ticket", margin, y);
-  y += 10;
+  y += 8;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(16, 20, 38);
+  const nameLines = doc.splitTextToSize(`Ticket für ${ticket.holder_name}`, contentWidth) as string[];
+  doc.text(nameLines, margin, y);
+  y += nameLines.length * 6 + 8;
 
   // QR-Code
   const qrSize = 62;

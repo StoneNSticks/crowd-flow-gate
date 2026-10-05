@@ -14,19 +14,22 @@ export const Route = createFileRoute("/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(eventsQuery),
   head: () => ({
     meta: [
-      { title: `${BRAND_NAME} | Kommende Veranstaltungen` },
+      { title: `${BRAND_NAME} | Studentische Initiative in Frankfurt` },
       {
         name: "description",
         content:
-          "Alle kommenden Veranstaltungen auf einen Blick: Tickets online kaufen, personalisiertes Ticket mit QR-Code erhalten und direkt am Eingang einlösen.",
+          "Goethe Connected bringt Studierende zusammen: Treffen, Partys und Veranstaltungen zum Kennenlernen. Alle kommenden Events auf einen Blick.",
       },
-      { property: "og:title", content: `${BRAND_NAME} | Kommende Veranstaltungen` },
+      { property: "og:title", content: `${BRAND_NAME} | Wir bringen Studierende zusammen` },
       {
         property: "og:description",
-        content: "Tickets online kaufen und mit QR-Code direkt am Eingang einlösen.",
+        content: "Treffen, Partys und Events von Studierenden für Studierende. Komm vorbei und sei dabei.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "de_DE" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: `${BRAND_NAME} | Wir bringen Studierende zusammen` },
+      { name: "twitter:description", content: "Treffen, Partys und Events von Studierenden für Studierende." },
     ],
   }),
   errorComponent: ({ error }) => (
