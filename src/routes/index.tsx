@@ -53,28 +53,14 @@ function HomePage() {
     <PublicLayout>
       <section className="surface-ink">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
-          <p className="text-eyebrow text-accent">Veranstaltungen &amp; Tickets</p>
+          <p className="text-eyebrow text-accent">Studentische Initiative</p>
           <h1 className="mt-3 max-w-2xl font-display text-3xl font-700 leading-tight sm:text-4xl lg:text-5xl">
-            Tickets kaufen, Ticket aufs Handy, rein in die Veranstaltung.
+            Wir bringen Studierende zusammen.
           </h1>
-          <p className="mt-3 max-w-xl text-sm text-ink-muted sm:text-base lg:text-lg">{BRAND_TAGLINE}</p>
-          <ul className="mt-6 grid gap-2.5 min-[520px]:grid-cols-3 sm:mt-8 sm:gap-4">
-            <Feature
-              icon={<CalendarDays className="size-5" />}
-              title="Alle Termine"
-              text="Kommende Veranstaltungen mit Preisen und Restplätzen."
-            />
-            <Feature
-              icon={<QrCode className="size-5" />}
-              title="Ticket mit QR-Code"
-              text="Personalisiert, sofort nach der Zahlung verfügbar."
-            />
-            <Feature
-              icon={<ShieldCheck className="size-5" />}
-              title="Sicherer Einlass"
-              text="Jeder Code ist einmalig und nur einmal einlösbar."
-            />
-          </ul>
+          <p className="mt-3 max-w-xl text-sm text-ink-muted sm:text-base lg:text-lg">
+            Goethe Connected ist eine Initiative von Studierenden für Studierende. Wir organisieren Treffen, Partys und
+            Veranstaltungen, bei denen man neue Leute kennenlernt. Komm vorbei und sei dabei.
+          </p>
         </div>
       </section>
 
