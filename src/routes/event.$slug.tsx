@@ -42,11 +42,10 @@ export const Route = createFileRoute("/event/$slug")({
       };
     }
     const { event } = detail;
-    const description =
-      (event.description ?? "").slice(0, 180) ||
-      `Tickets für ${event.title} am ${formatDate(event.starts_at)}${
-        event.venue_name ? ` in ${event.venue_name}` : ""
-      }.`;
+    const when = `${formatDate(event.starts_at)}, ${formatTime(event.starts_at)} Uhr${
+      event.venue_name ? ` · ${event.venue_name}` : ""
+    }`;
+    const description = `${when}. ${(event.description ?? "").slice(0, 150)}`.trim();
     const image =
       event.cover_image_url && event.cover_image_url.startsWith("https://")
         ? event.cover_image_url
@@ -57,8 +56,11 @@ export const Route = createFileRoute("/event/$slug")({
         { name: "description", content: description },
         { property: "og:title", content: event.title },
         { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
+        { property: "og:type", content: "article" },
+        { property: "og:locale", content: "de_DE" },
         { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: event.title },
+        { name: "twitter:description", content: description },
         ...(image
           ? [
               { property: "og:image", content: image },

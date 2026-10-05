@@ -42,6 +42,9 @@ export function TicketCard({
       <div className="surface-ink px-4 py-4 sm:px-5">
         <p className="text-eyebrow text-accent">{ticket.ticket_type_name ?? "Ticket"}</p>
         <h2 className="mt-1 break-words font-display text-base font-600 sm:text-lg">{ticket.event.title}</h2>
+        <p className="mt-2 break-words text-sm text-ink-muted">
+          Ticket für <span className="font-700 text-accent">{ticket.holder_name}</span>
+        </p>
       </div>
 
       <div className="flex min-w-0 flex-col items-center px-3 py-5 sm:px-5 sm:py-6">
