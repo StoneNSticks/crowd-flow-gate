@@ -109,7 +109,8 @@ export const startCheckout = createServerFn({ method: "POST" })
       });
     }
 
-    if (event.participation_mode === "paid" && amountCents < 50)
+    const isFreeOrder = amountCents === 0;
+    if (event.participation_mode === "paid" && !isFreeOrder && amountCents < 50)
       return { error: "Der Gesamtbetrag ist zu gering für eine Online-Zahlung." };
     if (event.participation_mode === "free_ticket" && amountCents !== 0)
       return { error: "Diese Anmeldung ist ausschließlich für kostenlose Tickets vorgesehen." };
@@ -148,7 +149,7 @@ export const startCheckout = createServerFn({ method: "POST" })
     );
     if (itemsError) return { error: itemsError.message };
 
-    if (event.participation_mode === "free_ticket") {
+    if (isFreeOrder) {
       const freeSessionId = `free_${crypto.randomUUID()}`;
       const { error: sessionError } = await supabaseAdmin
         .from("orders")

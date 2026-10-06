@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { BRAND_NAME } from "@/lib/brand";
-import gcLogo from "@/assets/gc-logo-mark.png.asset.json";
+import gcLogo from "@/assets/gc-logo.png";
 
 export function SiteHeader() {
   return (
@@ -8,7 +8,7 @@ export function SiteHeader() {
       <div className="mx-auto grid min-h-16 max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-2 min-[360px]:px-4 sm:px-6">
         <Link to="/" className="flex min-w-0 items-center gap-2.5">
           <img
-            src={gcLogo.url}
+            src={gcLogo}
             alt={`${BRAND_NAME} Logo`}
             className="size-9 shrink-0 rounded-lg object-cover"
           />

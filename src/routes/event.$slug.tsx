@@ -217,7 +217,8 @@ function PurchasePanel({ detail }: { detail: PublicEventDetail }) {
           slug: event.slug,
           buyerName: name.trim(),
           buyerEmail: email.trim(),
-          environment: getStripeEnvironment(),
+          // Free bookings never touch the payment provider, so they work without it.
+          environment: total === 0 ? "sandbox" : getStripeEnvironment(),
           returnUrl: `${window.location.origin}/kauf/erfolg?session={CHECKOUT_SESSION_ID}`,
           items: Object.entries(quantities)
             .filter(([, qty]) => qty > 0)
