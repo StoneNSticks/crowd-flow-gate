@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatDateTime } from "@/lib/format";
 import { BRAND_NAME } from "@/lib/brand";
+import { DoorPanel } from "@/components/scan/DoorPanel";
 
 export const Route = createFileRoute("/_authenticated/admin/scan")({
   head: () => ({
@@ -49,6 +50,7 @@ function ScanPage() {
   const [manual, setManual] = useState("");
   const [result, setResult] = useState<ScanResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   async function handleCode(raw: string) {
     if (busyRef.current) return;
@@ -82,6 +84,7 @@ function ScanPage() {
     try {
       const res = await redeem({ data: { code } });
       setResult(res);
+      setRefreshKey((k) => k + 1);
     } catch (err) {
       setErrorMessage(
         err instanceof Error
@@ -192,6 +195,8 @@ function ScanPage() {
           onReset={reset}
         />
       )}
+
+      <DoorPanel refreshKey={refreshKey} />
     </div>
   );
 }

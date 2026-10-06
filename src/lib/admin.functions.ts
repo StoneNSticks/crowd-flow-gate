@@ -517,3 +517,70 @@ function mapDbError(message: string): string {
   if (message.includes("events_slug_key")) return "Diese URL (Slug) wird bereits verwendet.";
   return message;
 }
+
+/* ------------------------------ door helpers ------------------------------- */
+
+export interface DoorEvent {
+  id: string;
+  title: string;
+  starts_at: string;
+  checkedIn: number;
+  total: number;
+}
+
+export const scannerListEvents = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<DoorEvent[]> => {
+    await assertScanner(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const since = new Date(Date.now() - 2 * 86400000).toISOString();
+    const { data: events, error } = await supabaseAdmin
+      .from("events")
+      .select("id, title, starts_at")
+      .eq("is_active", true)
+      .gte("starts_at", since)
+      .order("starts_at", { ascending: true });
+    if (error) throw new Error(error.message);
+    const ids = (events ?? []).map((e) => e.id);
+    const { data: tickets } = ids.length
+      ? await supabaseAdmin.from("tickets").select("event_id, status").in("event_id", ids).neq("status", "cancelled")
+      : { data: [] as { event_id: string; status: string }[] };
+    return (events ?? []).map((e) => {
+      const own = (tickets ?? []).filter((t) => t.event_id === e.id);
+      return { ...e, total: own.length, checkedIn: own.filter((t) => t.status === "redeemed").length };
+    });
+  });
+
+export interface DoorGuest {
+  code: string;
+  holder_name: string;
+  ticket_type: string;
+  status: string;
+  redeemed_at: string | null;
+}
+
+export const scannerSearchGuests = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { eventId: string; query: string }) =>
+    z.object({ eventId: z.string().uuid(), query: z.string().trim().min(2).max(80) }).parse(data),
+  )
+  .handler(async ({ data, context }): Promise<DoorGuest[]> => {
+    await assertScanner(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const q = data.query.replace(/[%_,()]/g, " ");
+    const { data: rows, error } = await supabaseAdmin
+      .from("tickets")
+      .select("code, holder_name, status, redeemed_at, ticket_types(name)")
+      .eq("event_id", data.eventId)
+      .ilike("holder_name", `%${q}%`)
+      .order("holder_name")
+      .limit(20);
+    if (error) throw new Error(error.message);
+    return (rows ?? []).map((r: any) => ({
+      code: r.code,
+      holder_name: r.holder_name,
+      ticket_type: r.ticket_types?.name ?? "Nicht angegeben",
+      status: r.status,
+      redeemed_at: r.redeemed_at,
+    }));
+  });
