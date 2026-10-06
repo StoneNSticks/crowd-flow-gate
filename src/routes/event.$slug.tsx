@@ -42,7 +42,7 @@ export const Route = createFileRoute("/event/$slug")({
       };
     }
     const { event } = detail;
-    const when = `${formatDate(event.starts_at)}, ${formatTime(event.starts_at)} Uhr${
+    const when = `${formatDate(event.starts_at)}, ${formatTime(event.starts_at)}${
       event.venue_name ? ` · ${event.venue_name}` : ""
     }`;
     const description = `${when}. ${(event.description ?? "").slice(0, 150)}`.trim();
