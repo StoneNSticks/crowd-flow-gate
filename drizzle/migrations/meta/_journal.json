@@ -43,6 +43,13 @@
       "when": 1790819274320,
       "tag": "0005_super_admin_role_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791334458528,
+      "tag": "0006_public_ticket_rpcs",
+      "breakpoints": true
     }
   ]
 }
