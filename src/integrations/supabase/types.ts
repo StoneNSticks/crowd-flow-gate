@@ -303,6 +303,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _gen_ticket_code: { Args: never; Returns: string }
+      _ticket_json: {
+        Args: { t: Database["public"]["Tables"]["tickets"]["Row"] }
+        Returns: Json
+      }
+      book_free_tickets: {
+        Args: { _email: string; _items: Json; _name: string; _slug: string }
+        Returns: Json
+      }
+      get_public_ticket: { Args: { _id: string }; Returns: Json }
+      get_session_tickets: { Args: { _session: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
