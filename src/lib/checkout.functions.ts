@@ -47,6 +47,30 @@ export type CheckoutResult =
 export const startCheckout = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => checkoutInput.parse(data))
   .handler(async ({ data }): Promise<CheckoutResult> => {
+    // Free orders run entirely through a protected database function, so they
+    // work on any host that only has the publishable key configured.
+    const { getPublicClient } = await import("@/lib/supabase-public.server");
+    const pub = getPublicClient();
+    const { data: priceRows } = await pub
+      .from("ticket_types")
+      .select("id, price_cents")
+      .in("id", data.items.map((i) => i.ticketTypeId));
+    const allFree =
+      (priceRows ?? []).length === data.items.length &&
+      (priceRows ?? []).every((t) => t.price_cents === 0);
+    if (allFree) {
+      const { data: res, error } = await pub.rpc("book_free_tickets", {
+        _slug: data.slug,
+        _name: data.buyerName,
+        _email: data.buyerEmail,
+        _items: data.items,
+      });
+      if (error) return { error: "Buchung fehlgeschlagen. Bitte erneut versuchen." };
+      const r = res as { freeSessionId?: string; error?: string } | null;
+      if (r?.freeSessionId) return { freeSessionId: r.freeSessionId };
+      return { error: r?.error ?? "Buchung fehlgeschlagen." };
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: event } = await supabaseAdmin

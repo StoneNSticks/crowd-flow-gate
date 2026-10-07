@@ -22,7 +22,8 @@ export interface PublicTicket {
   };
 }
 
-const TICKET_SELECT =
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _TICKET_SELECT =
   "id, code, holder_name, holder_email, status, created_at, redeemed_at, ticket_types(name, price_cents), events(title, slug, starts_at, ends_at, venue_name, address, cover_image_url)";
 
 /** Public responses never contain the full buyer email. */
@@ -59,12 +60,8 @@ function mapTicket(row: any): PublicTicket {
 export const getTicketById = createServerFn({ method: "GET" })
   .inputValidator((data: { id: string }) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data }): Promise<PublicTicket | null> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row } = await supabaseAdmin
-      .from("tickets")
-      .select(TICKET_SELECT)
-      .eq("id", data.id)
-      .maybeSingle();
+    const { getPublicClient } = await import("@/lib/supabase-public.server");
+    const { data: row } = await getPublicClient().rpc("get_public_ticket", { _id: data.id });
     return row ? mapTicket(row) : null;
   });
 
@@ -85,22 +82,13 @@ export const getTicketsBySession = createServerFn({ method: "GET" })
     async ({
       data,
     }): Promise<{ status: "pending" | "paid" | "unknown"; tickets: PublicTicket[] }> => {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-      const { data: order } = await supabaseAdmin
-        .from("orders")
-        .select("id, status")
-        .eq("provider_session_id", data.sessionId)
-        .maybeSingle();
-
+      const { getPublicClient } = await import("@/lib/supabase-public.server");
+      const { data: res } = await getPublicClient().rpc("get_session_tickets", {
+        _session: data.sessionId,
+      });
+      const order = res as { status: string; tickets: unknown[] } | null;
       if (!order) return { status: "unknown", tickets: [] };
-
-      const { data: rows } = await supabaseAdmin
-        .from("tickets")
-        .select(TICKET_SELECT)
-        .eq("order_id", order.id)
-        .order("created_at", { ascending: true });
-
+      const rows = order.tickets;
       const tickets = (rows ?? []).map(mapTicket);
       return {
         status: order.status === "paid" && tickets.length > 0 ? "paid" : "pending",
