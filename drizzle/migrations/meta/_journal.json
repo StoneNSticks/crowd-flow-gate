@@ -50,6 +50,13 @@
       "when": 1791334458528,
       "tag": "0006_public_ticket_rpcs",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791634429666,
+      "tag": "0007_ticket_flags_and_sales_pause",
+      "breakpoints": true
     }
   ]
 }
