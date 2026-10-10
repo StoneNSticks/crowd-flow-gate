@@ -27,6 +27,7 @@ export type Database = {
           max_tickets: number | null
           participation_mode: string
           sales_end_at: string | null
+          sales_paused: boolean
           sales_start_at: string | null
           slug: string
           starts_at: string
@@ -46,6 +47,7 @@ export type Database = {
           max_tickets?: number | null
           participation_mode?: string
           sales_end_at?: string | null
+          sales_paused?: boolean
           sales_start_at?: string | null
           slug: string
           starts_at: string
@@ -65,6 +67,7 @@ export type Database = {
           max_tickets?: number | null
           participation_mode?: string
           sales_end_at?: string | null
+          sales_paused?: boolean
           sales_start_at?: string | null
           slug?: string
           starts_at?: string
@@ -221,6 +224,7 @@ export type Database = {
           holder_email: string
           holder_name: string
           id: string
+          is_flagged: boolean
           order_id: string | null
           redeemed_at: string | null
           redeemed_by: string | null
@@ -234,6 +238,7 @@ export type Database = {
           holder_email: string
           holder_name: string
           id?: string
+          is_flagged?: boolean
           order_id?: string | null
           redeemed_at?: string | null
           redeemed_by?: string | null
@@ -247,6 +252,7 @@ export type Database = {
           holder_email?: string
           holder_name?: string
           id?: string
+          is_flagged?: boolean
           order_id?: string | null
           redeemed_at?: string | null
           redeemed_by?: string | null

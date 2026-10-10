@@ -207,6 +207,7 @@ const eventInput = z.object({
   sales_end_at: z.string().nullable(),
   max_tickets: z.number().int().min(0).nullable(),
   is_active: z.boolean(),
+  sales_paused: z.boolean().default(false),
   participation_mode: z.enum(["paid", "free_ticket", "open_free"]),
 });
 
@@ -374,6 +375,7 @@ export interface AdminTicketRow {
   ticket_type_id: string | null;
   ticket_type_name: string | null;
   price_cents: number;
+  is_flagged: boolean;
 }
 
 export const adminGetEvent = createServerFn({ method: "GET" })
@@ -399,7 +401,7 @@ export const adminGetEvent = createServerFn({ method: "GET" })
 
     const { data: tickets } = await supabase
       .from("tickets")
-      .select("id, code, holder_name, holder_email, status, created_at, redeemed_at, ticket_type_id")
+      .select("id, code, holder_name, holder_email, status, created_at, redeemed_at, ticket_type_id, is_flagged")
       .eq("event_id", data.id)
       .order("created_at", { ascending: false });
 
@@ -452,6 +454,21 @@ export const adminCancelTicket = createServerFn({ method: "POST" })
     const { error } = await supabase
       .from("tickets")
       .update({ status: "cancelled" })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminToggleTicketFlag = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { id: string; flagged: boolean }) =>
+    z.object({ id: z.string().uuid(), flagged: z.boolean() }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await (context as any).supabase
+      .from("tickets")
+      .update({ is_flagged: data.flagged })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-export type SalesState = "open" | "not_started" | "ended" | "sold_out" | "inactive";
+export type SalesState = "open" | "paused" | "not_started" | "ended" | "sold_out" | "inactive";
 
 export interface PublicTicketType {
   id: string;
@@ -27,6 +27,7 @@ export interface PublicEvent {
   sales_end_at: string | null;
   max_tickets: number | null;
   participation_mode: "paid" | "free_ticket" | "open_free";
+  sales_paused: boolean;
 }
 
 export interface PublicEventDetail {
@@ -44,7 +45,7 @@ export interface PublicEventSummary extends PublicEvent {
 }
 
 const EVENT_COLUMNS =
-  "id, slug, title, description, starts_at, ends_at, venue_name, address, cover_image_url, sales_start_at, sales_end_at, max_tickets, participation_mode";
+  "id, slug, title, description, starts_at, ends_at, venue_name, address, cover_image_url, sales_start_at, sales_end_at, max_tickets, participation_mode, sales_paused";
 
 function computeSalesState(
   event: PublicEvent,
@@ -54,6 +55,7 @@ function computeSalesState(
   const now = Date.now();
   if (new Date(event.starts_at).getTime() < now - 6 * 60 * 60 * 1000) return "ended";
   if (event.participation_mode === "open_free") return "open";
+  if (event.sales_paused) return "paused";
   if (event.sales_start_at && new Date(event.sales_start_at).getTime() > now) return "not_started";
   if (event.sales_end_at && new Date(event.sales_end_at).getTime() < now) return "ended";
   if (!hasTypes) return "inactive";

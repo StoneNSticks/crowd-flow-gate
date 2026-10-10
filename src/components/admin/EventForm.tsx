@@ -34,6 +34,7 @@ export interface EventFormValues {
   sales_end_at: string | null;
   max_tickets: number | null;
   is_active: boolean;
+  sales_paused: boolean;
   participation_mode: EventParticipationMode;
 }
 
@@ -68,6 +69,7 @@ export function emptyEvent(): EventFormValues {
     sales_end_at: null,
     max_tickets: null,
     is_active: true,
+    sales_paused: false,
     participation_mode: "paid",
   };
 }
@@ -597,6 +599,16 @@ export function EventForm({
           </p>
         </div>
         <Switch checked={values.is_active} onCheckedChange={(v) => set("is_active", v)} />
+      </div>
+
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-muted/40 p-4">
+        <div className="min-w-0">
+          <p className="text-sm font-600">Ticketverkauf pausieren</p>
+          <p className="text-xs text-muted-foreground">
+            Das Event bleibt sichtbar, aber es können keine neuen Tickets gebucht werden.
+          </p>
+        </div>
+        <Switch checked={values.sales_paused} onCheckedChange={(v) => set("sales_paused", v)} />
       </div>
 
        <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={busy}>

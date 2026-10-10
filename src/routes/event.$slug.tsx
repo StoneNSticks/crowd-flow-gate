@@ -379,7 +379,9 @@ function SalesNotice({ detail }: { detail: PublicEventDetail }) {
   const { salesState, event } = detail;
   const salesStart = event.sales_start_at;
   const text =
-    salesState === "not_started"
+    salesState === "paused"
+      ? "Der Ticketverkauf ist aktuell pausiert. Schau später wieder vorbei."
+      : salesState === "not_started"
       ? salesStart
         ? `Der Verkauf startet am ${formatDateTime(salesStart)}.`
         : "Der Verkauf hat noch nicht begonnen."
@@ -397,6 +399,8 @@ function salesButtonLabel(detail: PublicEventDetail): string {
   switch (detail.salesState) {
     case "sold_out":
       return "Ausverkauft";
+    case "paused":
+      return "Verkauf pausiert";
     case "not_started":
       return "Verkauf noch nicht gestartet";
     case "ended":

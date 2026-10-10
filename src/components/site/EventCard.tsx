@@ -30,6 +30,11 @@ export function EventCard({ event }: { event: PublicEventSummary }) {
             Ausverkauft
           </span>
         )}
+        {event.salesState === "paused" && (
+          <span className="absolute left-3 top-3 rounded-full bg-warning px-3 py-1 text-xs font-600 text-ink">
+            Verkauf pausiert
+          </span>
+        )}
         {event.salesState === "not_started" && (
           <span className="absolute left-3 top-3 rounded-full bg-warning px-3 py-1 text-xs font-600 text-ink">
             Verkauf startet bald
