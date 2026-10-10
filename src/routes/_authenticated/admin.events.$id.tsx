@@ -11,10 +11,12 @@ import {
   ExternalLink,
   Loader2,
   Plus,
+  Star,
   Trash2,
 } from "lucide-react";
 import {
   adminCancelTicket,
+  adminToggleTicketFlag,
   adminDeleteEvent,
   adminDeleteTicketType,
   adminGetEvent,
@@ -208,16 +210,37 @@ function TicketList({
     onError: (e) => toast.error((e as Error).message),
   });
 
+  const toggleFlag = useServerFn(adminToggleTicketFlag);
+  const flagMutation = useMutation({
+    mutationFn: (v: { id: string; flagged: boolean }) => toggleFlag({ data: v }),
+    onSuccess: () => onChanged(),
+    onError: (e) => toast.error((e as Error).message),
+  });
+  const [onlyFlagged, setOnlyFlagged] = useState(false);
+  const flagButton = (t: any) => (
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-pressed={t.is_flagged}
+      aria-label={t.is_flagged ? "Markierung entfernen" : "Ticket intern markieren"}
+      title={t.is_flagged ? "Markierung entfernen" : "Intern markieren"}
+      disabled={flagMutation.isPending}
+      onClick={() => flagMutation.mutate({ id: t.id, flagged: !t.is_flagged })}
+    >
+      <Star className={t.is_flagged ? "size-4 fill-accent text-accent" : "size-4 text-muted-foreground"} />
+    </Button>
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return tickets;
-    return tickets.filter((t) =>
+    const base = onlyFlagged ? tickets.filter((t) => t.is_flagged) : tickets;
+    if (!q) return base;
+    return base.filter((t) =>
       [t.holder_name, t.holder_email, t.code, t.ticket_type_name]
         .filter(Boolean)
         .some((v: string) => v.toLowerCase().includes(q)),
     );
-  }, [query, tickets]);
+  }, [query, tickets, onlyFlagged]);
 
   function exportCsv() {
     const statusLabel: Record<string, string> = {
@@ -233,7 +256,7 @@ function TicketList({
     };
     const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString("de-DE") : "");
     const rows = [
-      ["Name", "E-Mail", "Ticketart", "Einlassstatus", "Eingelöst am", "Gekauft am", "Ticketcode"],
+      ["Name", "E-Mail", "Ticketart", "Einlassstatus", "Eingelöst am", "Gekauft am", "Ticketcode", "Intern markiert"],
       ...tickets.map((t) => [
         t.holder_name,
         t.holder_email,
@@ -242,6 +265,7 @@ function TicketList({
         fmt(t.redeemed_at),
         fmt(t.created_at),
         t.code,
+        t.is_flagged ? "Ja" : "Nein",
       ]),
     ];
     const csv = "\uFEFF" + rows.map((r) => r.map(cell).join(";")).join("\r\n");
@@ -263,10 +287,16 @@ function TicketList({
           placeholder="Suche nach Name, E-Mail, Code oder Kategorie"
            className="max-w-sm"
         />
-         <Button className="w-full sm:w-auto" variant="outline" disabled={tickets.length === 0} onClick={exportCsv}>
+         <div className="flex flex-wrap gap-2">
+         <Button className="flex-1 sm:flex-none" variant={onlyFlagged ? "default" : "outline"} onClick={() => setOnlyFlagged((v) => !v)}>
+          <Star className="size-4" />
+          Markierte ({tickets.filter((t) => t.is_flagged).length})
+         </Button>
+         <Button className="flex-1 sm:flex-none" variant="outline" disabled={tickets.length === 0} onClick={exportCsv}>
           <Download className="size-4" />
           Teilnehmer als CSV
         </Button>
+         </div>
       </div>
       {filtered.length === 0 ? (
         <p className="mt-6 rounded-xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
@@ -282,7 +312,7 @@ function TicketList({
                    <p className="break-words font-600">{t.holder_name}</p>
                    <p className="break-all text-xs text-muted-foreground">{t.holder_email}</p>
                  </div>
-                 <StatusBadge status={t.status} />
+                 <div className="flex items-center gap-1">{flagButton(t)}<StatusBadge status={t.status} /></div>
                </div>
                <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
                  <div><dt className="text-muted-foreground">Kategorie</dt><dd className="break-words font-500">{t.ticket_type_name ?? "Nicht angegeben"}</dd></div>
@@ -330,7 +360,8 @@ function TicketList({
                     {formatDateTimeShort(t.created_at)}
                   </td>
                   <td className="px-4 py-3 font-mono text-xs">{t.code.slice(0, 10)}…</td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="whitespace-nowrap px-4 py-3 text-right">
+                    {flagButton(t)}
                     {t.status !== "cancelled" && (
                       <Button
                         variant="ghost"
@@ -685,6 +716,7 @@ function toFormValues(event: any): EventFormValues {
     sales_end_at: event.sales_end_at,
     max_tickets: event.max_tickets,
     is_active: event.is_active,
+    sales_paused: event.sales_paused ?? false,
     participation_mode: event.participation_mode ?? "paid",
   };
 }
