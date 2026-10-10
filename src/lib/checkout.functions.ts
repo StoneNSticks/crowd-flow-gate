@@ -75,11 +75,12 @@ export const startCheckout = createServerFn({ method: "POST" })
 
     const { data: event } = await supabaseAdmin
       .from("events")
-      .select("id, slug, title, is_active, sales_start_at, sales_end_at, max_tickets, participation_mode")
+      .select("id, slug, title, is_active, sales_start_at, sales_end_at, max_tickets, participation_mode, sales_paused")
       .eq("slug", data.slug)
       .maybeSingle();
 
     if (!event || !event.is_active) return { error: "Diese Veranstaltung ist nicht im Verkauf." };
+    if ((event as any).sales_paused) return { error: "Der Ticketverkauf ist aktuell pausiert." };
     if (event.participation_mode === "open_free") {
       return { error: "Für dieses offene Treffen ist keine Anmeldung erforderlich." };
     }

@@ -34,6 +34,7 @@ export interface EventFormValues {
   sales_end_at: string | null;
   max_tickets: number | null;
   is_active: boolean;
+  sales_paused: boolean;
   participation_mode: EventParticipationMode;
 }
 
@@ -68,6 +69,7 @@ export function emptyEvent(): EventFormValues {
     sales_end_at: null,
     max_tickets: null,
     is_active: true,
+    sales_paused: false,
     participation_mode: "paid",
   };
 }
